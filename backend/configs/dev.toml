@@ -1,0 +1,7 @@
+host = "0.0.0.0"
+port = 8080
+log_level = "debug"
+cors_origin = "http://localhost:3000"
+
+success_page = "http://localhost:3000/success"
+failure_page = "http://localhost:3000/failure"
