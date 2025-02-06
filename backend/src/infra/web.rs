@@ -5,7 +5,7 @@ use clap::Parser;
 use crate::infra::cli::Args;
 use crate::infra::config::Config;
 use crate::infra::dependencies::AppState;
-use crate::routes;
+use crate::presentation::routes;
 
 pub async fn run() -> std::io::Result<()> {
     let args = Args::parse();

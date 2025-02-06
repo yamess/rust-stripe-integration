@@ -14,3 +14,4 @@ clap = { version = "4.5.28", features = ["derive"] }
 toml = "0.8.19"
 env_logger = "0.11.6"
 tracing = "0.1.41"
+regex = "1.11.1"
