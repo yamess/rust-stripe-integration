@@ -21,4 +21,13 @@ pub enum Error {
 
     #[error("Stripe Error. Cause: {0}")]
     StripeError(String),
+    #[error("Database connection error. Cause: {0}")]
+    Connection(String),
+
+    #[error("Invalid Email. Cause: {0}")]
+    InvalidEmail(String),
+    #[error("Invalid role. Cause: {0}")]
+    InvalidRole(String),
+    #[error("Invalid user status. Cause: {0}")]
+    InvalidUserStatus(String),
 }

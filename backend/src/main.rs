@@ -5,6 +5,8 @@ mod prelude;
 mod domain;
 mod application;
 mod presentation;
+mod shared;
+mod schema;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
