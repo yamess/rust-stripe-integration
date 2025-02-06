@@ -10,7 +10,7 @@ pub struct User {
     id: Uuid,
     email: String,
     firebase_id: String,
-    strip_customer_id: String,
+    stripe_customer_id: String,
     status: UserStatus,
     role: Role,
     created_at: DateTime<Utc>,
@@ -23,7 +23,7 @@ impl User {
         id: Uuid,
         email: String,
         firebase_id: String,
-        strip_customer_id: String,
+        stripe_customer_id: String,
         status: UserStatus,
         role: Role,
         created_at: DateTime<Utc>,
@@ -34,7 +34,7 @@ impl User {
             id,
             email,
             firebase_id,
-            strip_customer_id,
+            stripe_customer_id,
             status,
             role,
             created_at,
@@ -55,8 +55,8 @@ impl User {
         &self.firebase_id
     }
 
-    pub fn strip_customer_id(&self) -> &str {
-        &self.strip_customer_id
+    pub fn stripe_customer_id(&self) -> &str {
+        &self.stripe_customer_id
     }
 
     pub fn status(&self) -> UserStatus {

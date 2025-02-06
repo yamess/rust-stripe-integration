@@ -1,10 +1,22 @@
 use diesel;
-use diesel::{Queryable, Selectable};
+use diesel::{Insertable, Queryable, Selectable};
 use uuid::Uuid;
 use crate::schema::profiles;
 use chrono::{DateTime, Utc};
 use crate::domain::user::entities::Profile;
 use crate::prelude::*;
+
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = profiles)]
+pub struct CreateProfileModel {
+    user_id: Uuid,
+    first_name: Option<String>,
+    last_name: Option<String>,
+    phone: Option<String>,
+    photo_url: Option<String>,
+}
+
 
 
 #[derive(Debug, Clone, Queryable, Selectable)]

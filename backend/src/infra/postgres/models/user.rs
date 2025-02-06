@@ -9,7 +9,32 @@ use crate::domain::user::value_objects::role::Role;
 use crate::domain::user::value_objects::user_status::UserStatus;
 use crate::infra::postgres::models::profile::ProfileModel;
 
-#[derive(Debug, Clone, Queryable, Selectable)]
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = users)]
+pub struct CreateUserModel {
+    email: String,
+    firebase_id: String,
+    stripe_customer_id: String,
+    status: String,
+    role: String,
+}
+impl TryFrom<&User> for CreateUserModel {
+    type Error = Error;
+
+    fn try_from(user: &User) -> Result<Self> {
+        Ok(Self {
+            email: user.email().to_string(),
+            firebase_id: user.firebase_id().to_string(),
+            stripe_customer_id: user.stripe_customer_id().to_string(),
+            status: user.status().to_string(),
+            role: user.role().to_string(),
+        })
+    }
+}
+
+
+#[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = users)]
 pub struct UserModel {
     id: Uuid,
