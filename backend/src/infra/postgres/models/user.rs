@@ -54,7 +54,7 @@ impl TryFrom<(UserModel, ProfileModel)> for User {
         let user = model.0;
         let profile = Profile::try_from(model.1)?;
 
-        Ok(User::new(
+        Ok(User::construct(
             user.id,
             user.email,
             user.firebase_id,

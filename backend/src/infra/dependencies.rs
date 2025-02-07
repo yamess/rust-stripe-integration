@@ -1,16 +1,18 @@
-use crate::application::user::service::UserService;
+use crate::application::user::service::{AuthenticationService, UserService};
 use crate::domain::entities::Payment;
 use crate::infra::config::Config;
 use crate::infra::postgres::connection::establish_connection;
 use crate::infra::postgres::repositories::PostgresUserRepository;
 use std::sync::Arc;
 use crate::domain::user::repositories::UserRepository;
+use crate::infra::firebase::service::FirebaseAuthenticatorService;
 
 #[derive(Clone)]
 pub struct AppState {
     pub config: Config,
     pub payment: Payment,
     pub user_service: UserService<PostgresUserRepository>,
+    pub auth_service: AuthenticationService<FirebaseAuthenticatorService>
 }
 
 impl AppState {
@@ -22,14 +24,20 @@ impl AppState {
         );
 
         let db_pool = establish_connection(&config.secrets().postgres_connection_string());
+        let http_client = Arc::new(reqwest::Client::new());
 
-        let pg_user_repository = PostgresUserRepository::new(db_pool.clone());
+        let pg_user_repository = Arc::new(PostgresUserRepository::new(db_pool.clone()));
+        let auth_client = Arc::new(FirebaseAuthenticatorService::new(
+            config.secrets().firebase_api_key(), http_client.clone()
+        ));
 
-        let user_service = UserService::new(Arc::new(pg_user_repository));
+        let user_service = UserService::new(pg_user_repository);
+        let auth_service = AuthenticationService::new(auth_client);
         Self {
             config,
             payment,
             user_service,
+            auth_service
         }
     }
 }

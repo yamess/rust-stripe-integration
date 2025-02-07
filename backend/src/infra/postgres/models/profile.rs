@@ -5,7 +5,7 @@ use crate::schema;
 use chrono::{DateTime, Utc};
 use crate::domain::user::entities::Profile;
 use crate::prelude::*;
-use crate::schema::profiles::first_name;
+
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::profiles)]
@@ -66,7 +66,7 @@ impl TryFrom<ProfileModel> for Profile {
     type Error = Error;
 
     fn try_from(model: ProfileModel) -> Result<Self> {
-        Ok(Profile::new(
+        Ok(Profile::construct(
             model.id,
             model.user_id,
             model.first_name,

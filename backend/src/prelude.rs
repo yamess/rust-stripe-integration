@@ -30,4 +30,14 @@ pub enum Error {
     InvalidRole(String),
     #[error("Invalid user status. Cause: {0}")]
     InvalidUserStatus(String),
+
+    #[error("Failed to authenticate user. Cause: {0}")]
+    AuthenticationFailed(String),
+    #[error("Firebase Error. Cause: {0}")]
+    FirebaseError(String),
+    #[error("Firebase Authentication Error. Cause: {0}")]
+    FirebaseAuthError(String),
+    #[error("Deserialization Error. Cause: {0}")]
+    DeserializationError(String),
+
 }

@@ -7,6 +7,7 @@ use crate::prelude::*;
 pub struct Secrets {
     stripe_secret_key: String,
     postgres_connection_string: String,
+    firebase_api_key: String,
 }
 impl Secrets {
     pub fn new<P: AsRef<Path>>(secrets_path: P) -> Self {
@@ -14,10 +15,11 @@ impl Secrets {
 
         let stripe_secret_key = Self::read_secret_file(&base_path.join("stripe-secret-key")).unwrap();
         let postgres_connection_string = Self::read_secret_file(&base_path.join("postgres-connection-string")).unwrap();
-
+        let firebase_api_key = Self::read_secret_file(&base_path.join("firebase-api-key")).unwrap();
         Self {
             stripe_secret_key,
             postgres_connection_string,
+            firebase_api_key,
         }
     }
     pub fn read_secret_file(path: &Path) -> Result<String> {
@@ -32,6 +34,9 @@ impl Secrets {
     }
     pub fn postgres_connection_string(&self) -> &str {
         &self.postgres_connection_string
+    }
+    pub fn firebase_api_key(&self) -> &str {
+        &self.firebase_api_key
     }
 }
 
