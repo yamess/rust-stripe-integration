@@ -31,7 +31,7 @@ pub struct UserDto {
     pub status: UserStatus,
     pub role: Role,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
     pub profile: ProfileDto
 }
 impl TryFrom<&User> for UserDto {
@@ -46,7 +46,7 @@ impl TryFrom<&User> for UserDto {
             status: user.status(),
             role: user.role(),
             created_at: user.created_at(),
-            updated_at: user.updated_at().unwrap_or_else(|| Utc::now()),
+            updated_at: user.updated_at(),
             profile: ProfileDto::try_from(user.profile())?,
         })
     }
@@ -63,7 +63,7 @@ impl TryFrom<&UserDto> for User {
             user_dto.status,
             user_dto.role,
             user_dto.created_at,
-            Some(user_dto.updated_at),
+            user_dto.updated_at,
             Profile::construct(
                 user_dto.profile.id,
                 user_dto.id,

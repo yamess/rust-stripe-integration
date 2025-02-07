@@ -42,7 +42,12 @@ impl UserRepository for PostgresUserRepository {
                 .returning(ProfileModel::as_select())
                 .get_result(conn)?;
             Ok((user, profile))
-        }).map_err(|e| Error::Database(e.to_string()))?;
+        }).map_err(|e| match e {
+            diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) => {
+                Error::UserAlreadyExists
+            },
+            other => Error::Database(other.to_string()),
+        })?;
 
         let user = User::try_from(response)?;
         Ok(user)

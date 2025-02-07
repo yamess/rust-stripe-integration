@@ -43,18 +43,18 @@ pub async fn delete_user(user: UserExtractor, state: web::Data<AppState>) -> Res
     Ok(HttpResponse::NoContent().finish())
 }
 
-#[get("/users/me")]
+#[get("/users")]
 pub async fn get_user(user: UserExtractor) -> Result<impl Responder> {
     // This will retrieve the user from the extractor by using auth provider id
     Ok(HttpResponse::Ok().json(user.0))
 }
 
-#[get("/users/{id}")]
-pub async fn get_user_by_id(user: UserExtractor, user_id: web::Path<Uuid>) -> Result<impl Responder> {
-    let user_id = user_id.into_inner();
-    if user.0.id == user_id {
-        Ok(HttpResponse::Ok().json(user.0))
-    } else {
-        Err(Error::Unauthorized)
-    }
-}
+// #[get("/users/{id}")]
+// pub async fn get_user_by_id(user: UserExtractor, user_id: web::Path<Uuid>) -> Result<impl Responder> {
+//     let user_id = user_id.into_inner();
+//     if user.0.id == user_id {
+//         Ok(HttpResponse::Ok().json(user.0))
+//     } else {
+//         Err(Error::Unauthorized)
+//     }
+// }

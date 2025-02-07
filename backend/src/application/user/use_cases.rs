@@ -20,7 +20,15 @@ impl<U: UserRepository> RegisterNewUserUseCase<U> {
 
     pub async fn execute(&self, auth: &AuthProviderData) -> Result<UserDto> {
         let user = User::new(auth.email.clone(), auth.id.to_string(), "".to_string());
-        let user = self.user_service.register(&user).await?;
+        let user = match self.user_service.register(&user).await {
+            Ok(user) => user,
+            Err(Error::UserAlreadyExists) => {
+                tracing::info!("User already exists, fetching user data");
+                let user = self.user_service.get_by_auth_provider_id(&auth.id).await?;
+                user
+            },
+            Err(e) => return Err(e)
+        };
         Ok(user)
     }
 }

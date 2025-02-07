@@ -42,6 +42,11 @@ pub enum Error {
     FirebaseAuthError(String),
     #[error("Deserialization Error. Cause: {0}")]
     DeserializationError(String),
+
+    #[error("Bad request. Cause: {0}")]
+    BadRequest(String),
+    #[error("User already exists")]
+    UserAlreadyExists,
 }
 
 impl ResponseError for Error {
