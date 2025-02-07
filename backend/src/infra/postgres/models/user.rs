@@ -13,11 +13,11 @@ use crate::schema;
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::users, check_for_backend(diesel::pg::Pg))]
 pub struct CreateUserModel {
-    email: String,
-    firebase_id: String,
-    stripe_customer_id: String,
-    status: String,
-    role: String,
+    pub email: String,
+    pub firebase_id: String,
+    pub stripe_customer_id: String,
+    pub status: String,
+    pub role: String,
 }
 impl TryFrom<&User> for CreateUserModel {
     type Error = Error;
@@ -37,14 +37,14 @@ impl TryFrom<&User> for CreateUserModel {
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = schema::users)]
 pub struct UserModel {
-    id: Uuid,
-    email: String,
-    firebase_id: String,
-    stripe_customer_id: String,
-    status: String,
-    role: String,
-    created_at: DateTime<Utc>,
-    updated_at: Option<DateTime<Utc>>,
+    pub id: Uuid,
+    pub email: String,
+    pub firebase_id: String,
+    pub stripe_customer_id: String,
+    pub status: String,
+    pub role: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 impl TryFrom<(UserModel, ProfileModel)> for User {

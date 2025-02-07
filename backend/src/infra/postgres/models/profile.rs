@@ -10,11 +10,11 @@ use crate::prelude::*;
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::profiles)]
 pub struct CreateProfileModel {
-    user_id: Uuid,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    phone: Option<String>,
-    photo_url: Option<String>,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub phone: Option<String>,
+    pub photo_url: Option<String>,
 }
 impl TryFrom<&Profile> for CreateProfileModel {
     type Error = Error;
@@ -35,14 +35,14 @@ impl TryFrom<&Profile> for CreateProfileModel {
 #[diesel(belongs_to(UserModel, foreign_key = user_id))]
 #[diesel(table_name = schema::profiles, check_for_backend(diesel::pg::Pg))]
 pub struct ProfileModel {
-    id: i32,
-    user_id: Uuid,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    phone: Option<String>,
-    photo_url: Option<String>,
-    created_at: DateTime<Utc>,
-    updated_at: Option<DateTime<Utc>>,
+    pub id: i32,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub phone: Option<String>,
+    pub photo_url: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 impl TryFrom<&Profile> for ProfileModel {
