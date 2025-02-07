@@ -6,15 +6,18 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Deserialize)]
 pub struct Secrets {
     stripe_secret_key: String,
+    postgres_connection_string: String,
 }
 impl Secrets {
     pub fn new<P: AsRef<Path>>(secrets_path: P) -> Self {
         let base_path = PathBuf::from(secrets_path.as_ref());
 
         let stripe_secret_key = Self::read_secret_file(&base_path.join("stripe-secret-key")).unwrap();
+        let postgres_connection_string = Self::read_secret_file(&base_path.join("postgres-connection-string")).unwrap();
 
         Self {
             stripe_secret_key,
+            postgres_connection_string,
         }
     }
     pub fn read_secret_file(path: &Path) -> Result<String> {
@@ -26,6 +29,9 @@ impl Secrets {
     }
     pub fn stripe_secret_key(&self) -> &str {
         &self.stripe_secret_key
+    }
+    pub fn postgres_connection_string(&self) -> &str {
+        &self.postgres_connection_string
     }
 }
 
