@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use diesel::{Insertable, Queryable, Selectable};
-use crate::schema::users;
 use diesel;
 use uuid::Uuid;
 use crate::prelude::*;
@@ -8,10 +7,11 @@ use crate::domain::user::entities::{Profile, User};
 use crate::domain::user::value_objects::role::Role;
 use crate::domain::user::value_objects::user_status::UserStatus;
 use crate::infra::postgres::models::profile::ProfileModel;
+use crate::schema;
 
 
 #[derive(Debug, Insertable)]
-#[diesel(table_name = users)]
+#[diesel(table_name = schema::users, check_for_backend(diesel::pg::Pg))]
 pub struct CreateUserModel {
     email: String,
     firebase_id: String,
@@ -35,7 +35,7 @@ impl TryFrom<&User> for CreateUserModel {
 
 
 #[derive(Debug, Queryable, Selectable)]
-#[diesel(table_name = users)]
+#[diesel(table_name = schema::users)]
 pub struct UserModel {
     id: Uuid,
     email: String,

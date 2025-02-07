@@ -1,2 +1,2 @@
-mod user;
-mod profile;
+pub(super) mod user;
+pub(super) mod profile;

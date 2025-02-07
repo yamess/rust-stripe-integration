@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+uuid = { version = "1.13.1", features = ["v4"] }
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] }
 actix-web = "4.9.0"
 tokio = { version = "1.43.0", features = ["full"] }
@@ -11,11 +12,12 @@ serde = { version = "1.0.217", features = ["derive"] }
 actix-cors = "0.7.0"
 thiserror = "2.0.11"
 clap = { version = "4.5.28", features = ["derive"] }
-toml = "0.8.19"
+toml = "0.8.20"
 env_logger = "0.11.6"
 tracing = "0.1.41"
 regex = "1.11.1"
+rust_decimal = { version = "1.36.0", features = ["serde", "db-diesel-postgres"] }
+rust_decimal_macros = "1.36.0"
 chrono = { version = "0.4.39", features = ["serde"] }
-diesel = { version = "2.2.7", features = ["chrono", "postgres", "r2d2", "uuid"] }
-diesel_migrations = "2.2.0"
-uuid = { version = "1.13.1", features = ["v4"] }
+diesel = { version = "2.2.7", features = ["chrono", "uuid", "postgres", "r2d2"] }
+diesel_migrations = { version = "2.2.0", features = ["postgres"] }

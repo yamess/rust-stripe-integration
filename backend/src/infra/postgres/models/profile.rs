@@ -1,14 +1,14 @@
 use diesel;
 use diesel::{Insertable, Queryable, Selectable};
 use uuid::Uuid;
-use crate::schema::profiles;
+use crate::schema;
 use chrono::{DateTime, Utc};
 use crate::domain::user::entities::Profile;
 use crate::prelude::*;
 
 
-#[derive(Debug, Clone, Insertable)]
-#[diesel(table_name = profiles)]
+#[derive(Debug, Insertable)]
+#[diesel(table_name = schema::profiles)]
 pub struct CreateProfileModel {
     user_id: Uuid,
     first_name: Option<String>,
@@ -16,12 +16,24 @@ pub struct CreateProfileModel {
     phone: Option<String>,
     photo_url: Option<String>,
 }
+impl TryFrom<&Profile> for CreateProfileModel {
+    type Error = Error;
+
+    fn try_from(profile: &Profile) -> Result<Self> {
+        Ok(Self {
+            user_id: profile.user_id(),
+            first_name: profile.first_name().map(|s| s.to_string()),
+            last_name: profile.last_name().map(|s| s.to_string()),
+            phone: profile.phone().map(|s| s.to_string()),
+            photo_url: profile.photo_url().map(|s| s.to_string()),
+        })
+    }
+}
 
 
-
-#[derive(Debug, Clone, Queryable, Selectable)]
+#[derive(Debug, Queryable, Selectable)]
 #[diesel(belongs_to(UserModel, foreign_key = user_id))]
-#[diesel(table_name = profiles)]
+#[diesel(table_name = schema::profiles, check_for_backend(diesel::pg::Pg))]
 pub struct ProfileModel {
     id: i32,
     user_id: Uuid,
