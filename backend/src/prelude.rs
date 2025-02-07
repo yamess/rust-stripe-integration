@@ -47,6 +47,15 @@ pub enum Error {
     BadRequest(String),
     #[error("User already exists")]
     UserAlreadyExists,
+
+    #[error("Invalid currency. Cause: {0}")]
+    InvalidCurrency(String),
+
+    #[error("Invalid billing cycle. Cause: {0}")]
+    InvalidBillingCycle(String),
+
+    #[error("Invalid subscription status. Cause: {0}")]
+    InvalidSubscriptionStatus(String),
 }
 
 impl ResponseError for Error {
@@ -55,6 +64,7 @@ impl ResponseError for Error {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
             Self::InvalidToken(_) => StatusCode::UNAUTHORIZED,
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            Self::BadRequest(_) => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
