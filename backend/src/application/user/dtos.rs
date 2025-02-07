@@ -51,6 +51,33 @@ impl TryFrom<&User> for UserDto {
         })
     }
 }
+impl TryFrom<&UserDto> for User {
+    type Error = Error;
+
+    fn try_from(user_dto: &UserDto) -> Result<Self> {
+        Ok(User::construct(
+            user_dto.id,
+            user_dto.email.clone(),
+            user_dto.firebase_id.clone(),
+            user_dto.stripe_customer_id.clone(),
+            user_dto.status,
+            user_dto.role,
+            user_dto.created_at,
+            Some(user_dto.updated_at),
+            Profile::construct(
+                user_dto.profile.id,
+                user_dto.id,
+                user_dto.profile.first_name.clone(),
+                user_dto.profile.last_name.clone(),
+                user_dto.profile.phone.clone(),
+                user_dto.profile.photo_url.clone(),
+                user_dto.profile.created_at,
+                user_dto.profile.updated_at,
+            ),
+        ))
+    }
+}
+
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserDto {

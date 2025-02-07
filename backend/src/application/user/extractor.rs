@@ -3,6 +3,7 @@ use actix_web::dev::Payload;
 use actix_web::web::Data;
 use futures_util::future::LocalBoxFuture;
 use crate::application::user::dtos::UserDto;
+use crate::application::user::use_cases::GetUserByAuthProviderIdUseCase;
 use crate::domain::user::entities::AuthProviderData;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
@@ -31,8 +32,7 @@ impl FromRequest for Authenticate {
 
             if let (Some(token), Some(state)) = (bearer_token, app_state) {
                 let auth_service = state.auth_service.clone();
-
-                match auth_service.authenticate(token).await {
+                match auth_service.authenticate(&token).await {
                     Ok(auth) => Ok(Authenticate(auth)),
                     Err(e) => {
                         tracing::error!("Invalid credentials: {}", e);
@@ -72,7 +72,7 @@ impl FromRequest for UserExtractor {
                 let user_service = state.user_service.clone();
                 let use_case = GetUserByAuthProviderIdUseCase::new(user_service);
 
-                match auth_service.authenticate(token).await {
+                match auth_service.authenticate(&token).await {
                     Ok(auth) => {
                         let user = use_case.execute(&auth.id).await?;
                         Ok(UserExtractor(user))

@@ -1,3 +1,6 @@
+use actix_web::http::StatusCode;
+use actix_web::ResponseError;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
@@ -39,5 +42,15 @@ pub enum Error {
     FirebaseAuthError(String),
     #[error("Deserialization Error. Cause: {0}")]
     DeserializationError(String),
+}
 
+impl ResponseError for Error {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
+            Self::InvalidToken(_) => StatusCode::UNAUTHORIZED,
+            Self::Unauthorized => StatusCode::UNAUTHORIZED,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
 }

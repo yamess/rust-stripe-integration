@@ -5,7 +5,8 @@ use clap::Parser;
 use crate::infra::cli::Args;
 use crate::infra::config::Config;
 use crate::infra::dependencies::AppState;
-use crate::presentation::routes;
+use crate::presentation::routers;
+
 
 pub async fn run() -> std::io::Result<()> {
     let args = Args::parse();
@@ -36,8 +37,11 @@ pub async fn run() -> std::io::Result<()> {
             .wrap(middleware::Compress::default())
             .wrap(cors)
             .app_data(Data::new(app_state.clone()))
-            .service(scope("/v1")
-                .configure(routes::probe_routes))
+            .service(
+                scope("/v1")
+                    .configure(routers::probes::routes)
+                    .configure(routers::users::routes)
+            )
     })
     .bind(format!("{}:{}", &config.app().host, &config.app().port))?
     .run()

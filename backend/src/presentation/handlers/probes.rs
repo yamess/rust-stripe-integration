@@ -9,9 +9,9 @@ pub async fn health() -> impl Responder {
 }
 
 
-#[post("/checkout")]
-pub async fn checkout(state: web::Data<AppState>) -> impl Responder {
-    let url = state.payment.create_stripe_session().await;
-    let response = PaymentSessionResponse { url };
-    HttpResponse::Ok().json(response)
-}
+// #[post("/checkout")]
+// pub async fn checkout(state: web::Data<AppState>) -> impl Responder {
+//     let url = state.payment.create_stripe_session().await;
+//     let response = PaymentSessionResponse { url };
+//     HttpResponse::Ok().json(response)
+// }

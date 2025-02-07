@@ -22,8 +22,8 @@ impl<U: UserRepository> UserService<U> {
         Ok(user)
     }
 
-    pub async fn get(&self, id: Uuid) -> Result<UserDto> {
-        let user = self.user_repo.find(&id).await;
+    pub async fn get(&self, id: &Uuid) -> Result<UserDto> {
+        let user = self.user_repo.find(id).await;
         match user {
             Ok(Some(user)) => {
                 let user = UserDto::try_from(&user)?;
@@ -52,30 +52,30 @@ impl<U: UserRepository> UserService<U> {
         }
     }
 
-    pub async fn get_by_firebase_id(&self, firebase_id: &str) -> Result<UserDto> {
-        let user = self.user_repo.find_by_firebase_id(firebase_id).await;
+    pub async fn get_by_auth_provider_id(&self, auth_id: &str) -> Result<UserDto> {
+        let user = self.user_repo.find_by_firebase_id(auth_id).await;
         match user {
             Ok(Some(user)) => {
                 let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
-                tracing::info!("User with auth id {} not found", firebase_id);
+                tracing::info!("User with auth id {} not found", auth_id);
                 Err(Error::NotFound("User not found".to_string()))
             },
             Err(e) => Err(e),
         }
     }
 
-    pub async fn get_stripe_customer_id(&self, stripe_customer_id: &str) -> Result<UserDto> {
-        let user = self.user_repo.find_by_strip_customer_id(stripe_customer_id).await;
+    pub async fn get_by_payment_provider_id(&self, pay_provider_id: &str) -> Result<UserDto> {
+        let user = self.user_repo.find_by_strip_customer_id(pay_provider_id).await;
         match user {
             Ok(Some(user)) => {
                 let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
-                tracing::info!("User with subscription provider id {} not found",stripe_customer_id);
+                tracing::info!("User with subscription provider id {} not found", pay_provider_id);
                 Err(Error::NotFound("User not found".to_string()))
             },
             Err(e) => Err(e),
@@ -92,8 +92,8 @@ impl<U: UserRepository> UserService<U> {
         Ok(user)
     }
 
-    pub async fn delete(&self, id: Uuid) -> Result<()> {
-        self.user_repo.delete(&id).await
+    pub async fn delete(&self, id: &Uuid) -> Result<()> {
+        self.user_repo.delete(id).await
     }
 }
 
