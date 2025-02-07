@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use diesel::{Insertable, Queryable, Selectable};
+use diesel::{Insertable, Queryable, Selectable, AsChangeset};
 use diesel;
 use uuid::Uuid;
 use crate::prelude::*;
@@ -65,5 +65,25 @@ impl TryFrom<(UserModel, ProfileModel)> for User {
             user.updated_at,
             profile,
         ))
+    }
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = schema::users)]
+pub struct UpdateUserModel {
+    pub status: String,
+    pub role: String,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+impl TryFrom<&User> for UpdateUserModel {
+    type Error = Error;
+
+    fn try_from(user: &User) -> Result<Self> {
+        Ok(Self {
+            status: user.status().to_string(),
+            role: user.role().to_string(),
+            updated_at: user.updated_at(),
+        })
     }
 }

@@ -1,12 +1,11 @@
 use std::sync::Arc;
 use diesel::{OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
-use diesel::row::NamedRow;
 use uuid::Uuid;
 use crate::domain::user::entities::User;
 use crate::domain::user::repositories::UserRepository;
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use crate::infra::postgres::models::profile::{CreateProfileModel, ProfileModel};
-use crate::infra::postgres::models::user::{CreateUserModel, UserModel};
+use crate::infra::postgres::models::profile::{CreateProfileModel, ProfileModel, UpdateProfileModel};
+use crate::infra::postgres::models::user::{CreateUserModel, UpdateUserModel, UserModel};
 use crate::prelude::*;
 use crate::schema::users::dsl::users;
 use crate::schema::profiles::dsl::profiles;
@@ -107,7 +106,9 @@ impl UserRepository for PostgresUserRepository {
             .filter(schema::users::stripe_customer_id.eq(strip_customer_id))
             .get_result::<(UserModel, ProfileModel)>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| {
+                Error::Database(e.to_string())
+            })?;
 
         let result = user.map(|(user, profile)| {
             let model =
@@ -118,11 +119,36 @@ impl UserRepository for PostgresUserRepository {
     }
 
     async fn update(&self, user: &User) -> Result<User> {
-        unimplemented!()
+        let user_model = UpdateUserModel::try_from(user)?;
+        let profile_model = UpdateProfileModel::try_from(user.profile())?;
+
+        let mut connection = get_connection(self.pool.clone())?;
+
+        let result = connection
+            .build_transaction()
+            .run::<_, diesel::result::Error, _>(|conn| {
+                let updated_user = diesel::update(users.find(user.id()))
+                    .set(&user_model)
+                    .get_result::<UserModel>(conn)?;
+                let updated_profile = diesel::update(profiles.filter(schema::profiles::user_id.eq(user.id())))
+                    .set(&profile_model)
+                    .get_result::<ProfileModel>(conn)?;
+                Ok((updated_user, updated_profile))
+            })
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => Error::NotFound("User not found".to_string()),
+                other => Error::Database(other.to_string()),
+            })?;
+        let user = User::try_from(result)?;
+        Ok(user)
     }
 
     async fn delete(&self, user_id: &Uuid) -> Result<()> {
-        unimplemented!()
+        let mut connection = get_connection(self.pool.clone())?;
+        diesel::delete(users.find(user_id))
+            .execute(&mut connection)
+            .map_err(|e| Error::Database(e.to_string()))?;
+        Ok(())
     }
 
 }

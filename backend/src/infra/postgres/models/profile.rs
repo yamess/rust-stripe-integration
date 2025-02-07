@@ -1,11 +1,11 @@
 use diesel;
-use diesel::{Insertable, Queryable, Selectable};
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use uuid::Uuid;
 use crate::schema;
 use chrono::{DateTime, Utc};
 use crate::domain::user::entities::Profile;
 use crate::prelude::*;
-
+use crate::schema::profiles::first_name;
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::profiles)]
@@ -76,5 +76,30 @@ impl TryFrom<ProfileModel> for Profile {
             model.created_at,
             model.updated_at,
         ))
+    }
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = schema::profiles)]
+#[diesel(belongs_to(UserModel, foreign_key = user_id))]
+pub struct UpdateProfileModel {
+    first_name: Option<String>,
+    last_name: Option<String>,
+    phone: Option<String>,
+    photo_url: Option<String>,
+    updated_at: Option<DateTime<Utc>>,
+}
+
+impl TryFrom<&Profile> for UpdateProfileModel {
+    type Error = Error;
+
+    fn try_from(profile: &Profile) -> Result<Self> {
+        Ok(Self {
+            first_name: profile.first_name().map(|s| s.to_string()),
+            last_name: profile.last_name().map(|s| s.to_string()),
+            phone: profile.phone().map(|s| s.to_string()),
+            photo_url: profile.photo_url().map(|s| s.to_string()),
+            updated_at: profile.updated_at(),
+        })
     }
 }

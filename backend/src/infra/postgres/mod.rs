@@ -1,4 +1,4 @@
 pub(super) mod connection;
 pub(super) mod migrations;
-mod repositories;
+pub(super) mod repositories;
 mod models;
