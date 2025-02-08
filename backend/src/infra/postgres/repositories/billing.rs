@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::domain::billing::entities::plan::Plan;
 use crate::domain::billing::repository::BillingRepository;
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use crate::infra::postgres::models::plan::{NewPlanModel, PlanModel};
+use crate::infra::postgres::models::plan::{NewPlanModel, PlanModel, UpdatePlanModel};
 use crate::prelude::*;
 use crate::schema;
 use crate::schema::plans::dsl::plans;
@@ -63,5 +63,25 @@ impl BillingRepository for PostgresBillingRepository {
             .collect::<Result<Vec<Plan>>>()?;
 
         Ok(vec_plans)
+    }
+
+    async fn update_plan(&self, plan: &Plan) -> Result<Plan> {
+        let mut connection = get_connection(self.pool.clone())?;
+        let plan_model = UpdatePlanModel::try_from(plan)?;
+        let plan_model = diesel::update(plans.find(plan.id()))
+            .set(&plan_model)
+            .returning(PlanModel::as_select())
+            .get_result(&mut connection)
+            .map_err(|e| Error::Database(e.to_string()))?;
+        let plan = Plan::try_from(plan_model)?;
+        Ok(plan)
+    }
+
+    async fn delete_plan(&self, plan_id: i32) -> Result<()> {
+        let mut connection = get_connection(self.pool.clone())?;
+        diesel::delete(plans.find(plan_id))
+            .execute(&mut connection)
+            .map_err(|e| Error::Database(e.to_string()))?;
+        Ok(())
     }
 }
