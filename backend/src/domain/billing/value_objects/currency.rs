@@ -12,6 +12,7 @@ pub enum Currency {
     CAD,
 }
 
+
 impl FromStr for Currency {
     type Err = Error;
     fn from_str(s: &str) -> Result<Self> {

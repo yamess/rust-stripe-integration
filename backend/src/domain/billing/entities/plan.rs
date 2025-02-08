@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
-use crate::domain::subscription::value_objects::billing_cycle::BillingCycle;
-use crate::domain::subscription::value_objects::currency::Currency;
-use crate::domain::subscription::value_objects::price::Price;
+use crate::domain::billing::value_objects::billing_cycle::BillingCycle;
+use crate::domain::billing::value_objects::currency::Currency;
+use crate::domain::billing::value_objects::price::Price;
 
 #[derive(Debug, Clone)]
 pub struct Plan {

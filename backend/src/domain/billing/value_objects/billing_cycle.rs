@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::str::FromStr;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use crate::prelude::*;
 
@@ -8,6 +9,8 @@ use crate::prelude::*;
 pub enum BillingCycle {
     Monthly,
     Quarterly,
+    Trimester,
+    Semester,
     Yearly,
 }
 
@@ -17,6 +20,8 @@ impl FromStr for BillingCycle {
         match s.to_lowercase().as_str() {
             "monthly" => Ok(Self::Monthly),
             "quarterly" => Ok(Self::Quarterly),
+            "trimester" => Ok(Self::Trimester),
+            "semester" => Ok(Self::Semester),
             "yearly" => Ok(Self::Yearly),
             _ => Err(Error::InvalidBillingCycle(s.to_string())),
         }
@@ -28,6 +33,8 @@ impl Display for BillingCycle {
         match self {
             Self::Monthly => write!(f, "monthly"),
             Self::Quarterly => write!(f, "quarterly"),
+            Self::Trimester => write!(f, "trimester"),
+            Self::Semester => write!(f, "semester"),
             Self::Yearly => write!(f, "yearly"),
         }
     }

@@ -2,10 +2,10 @@ use crate::application::user::service::{AuthenticationService, UserService};
 use crate::domain::entities::Payment;
 use crate::infra::config::Config;
 use crate::infra::postgres::connection::establish_connection;
-use crate::infra::postgres::repositories::PostgresUserRepository;
 use std::sync::Arc;
 use crate::domain::user::repositories::UserRepository;
 use crate::infra::firebase::service::FirebaseAuthenticatorService;
+use crate::infra::postgres::repositories::user::PostgresUserRepository;
 
 #[derive(Clone)]
 pub struct AppState {

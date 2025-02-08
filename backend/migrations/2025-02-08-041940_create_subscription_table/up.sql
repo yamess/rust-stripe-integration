@@ -3,7 +3,7 @@
 
 
 CREATE TABLE "subscriptions"(
-	"id" INT4 NOT NULL PRIMARY KEY,
+	"id" INT4 NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 	"user_id" UUID NOT NULL,
 	"plan_id" INT4 NOT NULL,
 	"stripe_subscription_id" VARCHAR NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE "subscriptions"(
 	"current_period_start" TIMESTAMPTZ NOT NULL,
 	"current_period_end" TIMESTAMPTZ,
 	"canceled_at" TIMESTAMPTZ,
-	"created_at" TIMESTAMPTZ NOT NULL,
+	"created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
 	"updated_at" TIMESTAMPTZ,
 	FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE,
 	FOREIGN KEY ("plan_id") REFERENCES "plans"("id")
