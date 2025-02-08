@@ -160,6 +160,12 @@ impl Profile {
         self.updated_at
     }
 
+    pub fn full_name(&self) -> String {
+        let first_name = self.first_name().unwrap_or("");
+        let last_name = self.last_name().unwrap_or("");
+        let full_name = format!("{} {}", first_name, last_name);
+        full_name.trim().to_string()
+    }
     pub fn update(
         &mut self,
         first_name: Option<String>,

@@ -56,6 +56,15 @@ pub enum Error {
 
     #[error("Invalid subscription status. Cause: {0}")]
     InvalidSubscriptionStatus(String),
+
+    #[error("Internal error")]
+    InternalError,
+
+    #[error("Transport error. Cause: {0}")]
+    TransportError(String),
+
+    #[error("External API error. Status: {0}, Body: {1}")]
+    ApiError(u16, String),
 }
 
 impl ResponseError for Error {
