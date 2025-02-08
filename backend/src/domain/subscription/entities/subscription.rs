@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use crate::domain::subscription::entities::plan::Plan;
 use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 
 #[derive(Debug, Clone)]
@@ -88,5 +89,54 @@ impl Subscription {
         self.current_period_end = current_period_end;
         self.canceled_at = canceled_at;
         self.updated_at = Some(Utc::now());
+    }
+
+    pub fn cancel(&mut self) {
+        self.status = SubscriptionStatus::Canceled;
+        self.canceled_at = Some(Utc::now());
+        self.updated_at = Some(Utc::now());
+    }
+
+    pub fn reactivate(&mut self) {
+        self.status = SubscriptionStatus::Active;
+        self.updated_at = Some(Utc::now());
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.status == SubscriptionStatus::Active
+    }
+
+    pub fn is_canceled(&self) -> bool {
+        self.status == SubscriptionStatus::Canceled
+    }
+
+    pub fn is_trialing(&self) -> bool {
+        self.status == SubscriptionStatus::Trialing
+    }
+
+    pub fn construct(
+        id: i32,
+        user_id: Uuid,
+        plan_id: i32,
+        stripe_subscription_id: String,
+        status: SubscriptionStatus,
+        current_period_start: DateTime<Utc>,
+        current_period_end: Option<DateTime<Utc>>,
+        canceled_at: Option<DateTime<Utc>>,
+        created_at: DateTime<Utc>,
+        updated_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        Self {
+            id,
+            user_id,
+            plan_id,
+            stripe_subscription_id,
+            status,
+            current_period_start,
+            current_period_end,
+            canceled_at,
+            created_at,
+            updated_at,
+        }
     }
 }
