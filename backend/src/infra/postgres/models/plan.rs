@@ -70,7 +70,7 @@ impl TryFrom<PlanModel> for Plan {
 
 #[derive(Debug, Clone, Insertable)]
 #[diesel(table_name = schema::plans, check_for_backend(diesel::pg::Pg))]
-pub struct NewPlan {
+pub struct NewPlanModel {
     name: String,
     description: Option<String>,
     price: Decimal,
@@ -81,7 +81,7 @@ pub struct NewPlan {
     trial_period_days: i32,
     active: bool,
 }
-impl TryFrom<&Plan> for NewPlan {
+impl TryFrom<&Plan> for NewPlanModel {
     type Error = Error;
 
     fn try_from(plan: &Plan) -> Result<Self> {

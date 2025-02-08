@@ -6,9 +6,8 @@ use crate::prelude::*;
 pub trait BillingRepository: Send + Sync {
     // Plan operations
     async fn save_plan(&self, plan: &Plan) -> Result<Plan>;
-    // async fn get_user_plan(&self, user_id: &Uuid) -> Result<Plan>;
-    // async fn get_plan(&self, plan_id: i32) -> Result<Plan>;
-    // async fn get_plans(&self) -> Result<Vec<Plan>>;
+    async fn get_plan(&self, plan_id: i32) -> Result<Plan>;
+    async fn get_plans(&self, skip: i64, limit: i64) -> Result<Vec<Plan>>;
     // async fn update_plan(&self, plan: &Plan) -> Result<Plan>;
     // async fn delete_plan(&self, plan_id: i32) -> Result<()>;
     //
