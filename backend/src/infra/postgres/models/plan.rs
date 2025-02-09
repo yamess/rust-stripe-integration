@@ -3,10 +3,10 @@ use chrono::{DateTime, Utc};
 use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use diesel;
 use rust_decimal::Decimal;
-
-use crate::domain::billing::entities::plan::Plan;
-use crate::domain::billing::value_objects::{price::Price, currency::Currency};
-use crate::domain::billing::value_objects::billing_cycle::BillingCycle;
+use crate::domain::plans::entities::Plan;
+use crate::domain::plans::value_objects::billing_cycle::BillingCycle;
+use crate::domain::plans::value_objects::currency::Currency;
+use crate::domain::plans::value_objects::price::Price;
 use crate::schema;
 use crate::prelude::*;
 

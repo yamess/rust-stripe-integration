@@ -1,28 +1,20 @@
 use std::sync::Arc;
-use crate::domain::billing::repository::BillingRepository;
+use crate::application::plan::dtos::NewPlanDto;
+use crate::domain::payment::service::PaymentService;
+use crate::domain::plans::entities::Plan;
+use crate::domain::plans::repository::PlanRepository;
 use crate::prelude::*;
 
-#[derive(Clone)]
-pub struct PlanService<P> {
-    repo: Arc<P>
+
+#[derive(Debug, Clone)]
+pub struct PlanService<R> {
+    repo: Arc<R>,
 }
-impl<P: BillingRepository > PlanService<P> {
-    pub fn new(service: P) -> Self {
-        Self { service }
-    }
-    pub async fn save_plan(&self, plan: &Plan) -> Result<Plan> {
-        self.service.save_plan(plan).await
-    }
-    pub async fn get_plan(&self, plan_id: i32) -> Result<Plan> {
-        self.service.get_plan(plan_id).await
-    }
-    pub async fn get_plans(&self, skip: i64, limit: i64) -> Result<Vec<Plan>> {
-        self.service.get_plans(skip, limit).await
-    }
-    pub async fn update_plan(&self, plan: &Plan) -> Result<Plan> {
-        self.service.update_plan(plan).await
-    }
-    pub async fn delete_plan(&self, plan_id: i32) -> Result<()> {
-        self.service.delete_plan(plan_id).await
+
+impl<R: PlanRepository> PlanService<R> {
+    pub fn new(repo: Arc<R>) -> Self {
+        Self {
+            repo,
+        }
     }
 }

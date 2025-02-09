@@ -1,3 +1,2 @@
 pub mod user;
-mod billing;
-mod plan;
+pub mod plan;

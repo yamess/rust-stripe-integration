@@ -1,5 +1,4 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
-use crate::domain::entities::PaymentSessionResponse;
 use crate::infra::dependencies::AppState;
 
 #[get("/health")]

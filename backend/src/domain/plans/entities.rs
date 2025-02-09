@@ -1,10 +1,73 @@
 use chrono::{DateTime, Utc};
-use crate::domain::billing::value_objects::billing_cycle::BillingCycle;
-use crate::domain::billing::value_objects::currency::Currency;
-use crate::domain::billing::value_objects::price::Price;
+use crate::domain::plans::value_objects::billing_cycle::BillingCycle;
+use crate::domain::plans::value_objects::currency::Currency;
+use crate::domain::plans::value_objects::price::Price;
 
 #[derive(Debug, Clone)]
-pub struct Plan {
+pub struct Product {
+    id: i32,
+    stripe_product_id: String,
+    name: String,
+    created_at: DateTime<Utc>,
+    updated_at: Option<DateTime<Utc>>,
+}
+impl Product {
+    pub fn new(stripe_product_id: String, name: String) -> Self {
+        Self {
+            id: 0,
+            stripe_product_id,
+            name,
+            created_at: Utc::now(),
+            updated_at: None,
+        }
+    }
+
+    pub fn id(&self) -> i32 {
+        self.id
+    }
+
+    pub fn stripe_product_id(&self) -> &str {
+        &self.stripe_product_id
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    pub fn updated_at(&self) -> Option<DateTime<Utc>> {
+        self.updated_at
+    }
+
+    pub fn update(&mut self, stripe_product_id: String, name: String) {
+        self.stripe_product_id = stripe_product_id;
+        self.name = name;
+        self.updated_at = Some(Utc::now());
+    }
+
+    pub fn construct(
+        id: i32,
+        stripe_product_id: String,
+        name: String,
+        created_at: DateTime<Utc>,
+        updated_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        Self {
+            id,
+            stripe_product_id,
+            name,
+            created_at,
+            updated_at,
+        }
+    }
+}
+
+
+#[derive(Debug, Clone)]
+pub struct RatePlan {
     id: i32,
     name: String,
     description: Option<String>,
@@ -18,7 +81,7 @@ pub struct Plan {
     created_at: DateTime<Utc>,
     updated_at: Option<DateTime<Utc>>,
 }
-impl Plan {
+impl RatePlan {
     pub fn new(
         name: String,
         description: Option<String>,

@@ -1,7 +1,7 @@
-use crate::prelude::*;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
+use crate::prelude::*;
 
 
 #[derive(Debug, Clone, PartialEq)]

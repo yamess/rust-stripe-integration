@@ -1,29 +1,40 @@
 use std::sync::Arc;
 use serde_json::Value;
 use uuid::Uuid;
-use crate::domain::billing::entities::plan::Plan;
-use crate::domain::services::PaymentProviderService;
+use crate::domain::payment::entities::PaymentSession;
+use crate::domain::payment::service::PaymentService;
+use crate::domain::plans::entities::Plan;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
 
 
 #[derive(Clone)]
-pub struct StripeClient {
+pub struct StripePaymentService {
     http: Arc<reqwest::Client>,
     secret_key: String,
     base_url: String,
+    success_page: String,
+    cancel_page: String,
 }
-impl StripeClient {
-    pub fn new(secret_key: String, http_client: Arc<reqwest::Client>) -> Self {
+
+impl StripePaymentService {
+    pub fn new(
+        secret_key: &str,
+        success_page: &str,
+        cancel_page: &str,
+        http_client: Arc<reqwest::Client>
+    ) -> Self {
         Self {
             http: http_client,
-            secret_key,
+            secret_key: secret_key.to_string(),
             base_url: "https://api.stripe.com/v1".to_string(),
+            success_page: success_page.to_string(),
+            cancel_page: cancel_page.to_string(),
         }
     }
 }
 
-impl PaymentProviderService for StripeClient {
+impl PaymentService for StripePaymentService {
     async fn create_customer(&self, user: &User) -> Result<Value> {
         let url = format!("{}/customers", self.base_url);
         let response = self.http.post(&url)
@@ -90,6 +101,44 @@ impl PaymentProviderService for StripeClient {
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
             tracing::error!("Failed to create price (HTTP {}): {}", status, error_body);
+            let code = status.as_u16();
+            Err(Error::ApiError(code, error_body))
+        }
+    }
+
+    async fn create_checkout_session(&self, user: &User, plan: &Plan) -> Result<PaymentSession> {
+        let url = format!("{}/checkout/sessions", self.base_url);
+        let response = self.http
+            .post(&url)
+            .basic_auth(&self.secret_key, Some(""))
+            .json(&serde_json::json!({
+                "customer_email": user.email(),
+                "payment_method_types": ["card"],
+                "line_items": [{
+                    "price": plan.stripe_price_id(),
+                    "quantity": 1,
+                }],
+                "mode": "subscription",
+                "success_url": self.success_page,
+                "cancel_url": self.cancel_page,
+            }))
+            .send()
+            .await.map_err(|e| {
+                tracing::error!("Failed to create checkout session: {:?}", e);
+                Error::TransportError("Failed to create checkout session".to_string())
+            })?;
+
+        let status = response.status();
+
+        if status.is_success() {
+            let session = response.json::<PaymentSession>().await.map_err(|e| {
+                tracing::error!("Failed to create checkout session: {:?}", e);
+                Error::DeserializationError("Failed to create checkout session".to_string())
+            })?;
+            Ok(session)
+        } else {
+            let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
+            tracing::error!("Failed to create checkout session (HTTP {}): {}", status, error_body);
             let code = status.as_u16();
             Err(Error::ApiError(code, error_body))
         }

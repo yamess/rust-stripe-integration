@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use crate::domain::billing::value_objects::subscription_status::SubscriptionStatus;
+use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 
 #[derive(Debug, Clone)]
 pub struct Subscription {
