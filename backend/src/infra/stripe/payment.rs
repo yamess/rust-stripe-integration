@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use serde_json::Value;
 use uuid::Uuid;
-use crate::domain::payment::entities::PaymentSession;
+use crate::domain::payment::old_entities::PaymentSession;
 use crate::domain::payment::service::PaymentService;
 use crate::domain::plans::entities::Plan;
 use crate::domain::user::entities::User;
