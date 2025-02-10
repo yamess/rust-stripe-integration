@@ -35,7 +35,7 @@ impl CheckoutSession {
         cancel_url: Option<String>,
     ) -> Self {
         Self {
-            id,
+            id: Default::default(),
             customer,
             customer_email,
             line_items,

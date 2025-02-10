@@ -13,6 +13,8 @@ pub enum Error {
     Unauthorized,
     #[error("Conversion Error. Cause: {0}")]
     ConversionError(String),
+    #[error("Parsing Error. Cause: {0}")]
+    Parsing(String),
     #[error("Regex Error. Cause: {0}")]
     RegexError(#[from] regex::Error),
     #[error("Database error. Cause: {0}")]

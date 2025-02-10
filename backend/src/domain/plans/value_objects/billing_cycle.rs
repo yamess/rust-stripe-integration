@@ -1,58 +1,54 @@
 use std::fmt::Display;
 use std::str::FromStr;
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use crate::prelude::*;
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BillingCycle {
-    Monthly,
-    Quarterly,
-    Semester,
-    Yearly,
+    Month(i32),
+    Year(i32),
 }
-
 impl BillingCycle {
-    pub fn to_days(&self) -> i32 {
-        match self {
-            Self::Monthly => 30,
-            Self::Quarterly => 90,
-            Self::Semester => 180,
-            Self::Yearly => 365,
+    pub fn new(interval: &str, count: i32) -> Result<Self> {
+        match interval {
+            "month" => Ok(Self::Month(count)),
+            "year" => Ok(Self::Year(count)),
+            _ => Err(Error::InvalidBillingCycle("Invalid billing cycle".to_string())),
         }
     }
-    pub fn interval(&self) -> (&'static str, i32) {
+    pub fn value(&self) -> (&'static str, i32) {
         match self {
-            Self::Monthly => ("month", 1),
-            Self::Quarterly => ("month", 3),
-            Self::Semester => ("month" , 6),
-            Self::Yearly => ("year", 1),
+            Self::Month(count) => ("month", *count),
+            Self::Year(count) => ("year", *count),
         }
     }
 }
 
 impl FromStr for BillingCycle {
     type Err = Error;
+
     fn from_str(s: &str) -> Result<Self> {
-        match s.to_lowercase().as_str() {
-            "monthly" => Ok(Self::Monthly),
-            "quarterly" => Ok(Self::Quarterly),
-            "semester" => Ok(Self::Semester),
-            "yearly" => Ok(Self::Yearly),
-            _ => Err(Error::InvalidBillingCycle(s.to_string())),
+        let parts: Vec<&str> = s.split('-').collect();
+        if parts.len() != 2 {
+            return Err(Error::InvalidBillingCycle("Invalid billing cycle".to_string()));
+        }
+        let count = parts[0]
+            .parse::<i32>()
+            .map_err(|_| Error::Parsing("Invalid billing cycle".to_string()))?;
+        let interval = parts[1];
+        match interval {
+            "month" => Ok(Self::Month(count)),
+            "year" => Ok(Self::Year(count)),
+            _ => Err(Error::InvalidBillingCycle("Invalid billing cycle".to_string())),
         }
     }
 }
 
 impl Display for BillingCycle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Monthly => write!(f, "monthly"),
-            Self::Quarterly => write!(f, "quarterly"),
-            Self::Semester => write!(f, "semester"),
-            Self::Yearly => write!(f, "yearly"),
-        }
+        let (interval, count) = self.value();
+        write!(f, "{}-{}", count, interval)
     }
 }
 
@@ -61,12 +57,13 @@ impl Serialize for BillingCycle {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&self.to_string())
+        let (interval, count) = self.value();
+        serializer.serialize_str(&format!("{}-{}", count, interval))
     }
 }
 
 impl<'de> Deserialize<'de> for BillingCycle {
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> std::result::Result<BillingCycle, D::Error>
     where
         D: serde::Deserializer<'de>,
     {

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use diesel::{RunQueryDsl, SelectableHelper};
-use crate::domain::plans::entities::Plan;
+use crate::domain::plans::entities::plan::Plan;
 use crate::domain::plans::repository::PlanRepository;
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use crate::infra::postgres::models::plan::{NewPlanModel, PlanModel};
+use crate::infra::postgres::models::plan::{CreatePlanModel, PlanModel};
 use crate::prelude::*;
 
 
@@ -20,7 +20,7 @@ impl PostgresPlanRepository {
 impl PlanRepository for PostgresPlanRepository {
     async fn create(&self, plan: &Plan) -> Result<Plan> {
         let mut connection = get_connection(self.pool.clone())?;
-        let new_plan_model = NewPlanModel::try_from(plan)?;
+        let new_plan_model = CreatePlanModel::try_from(plan)?;
         let plan_model = diesel::insert_into(crate::schema::plans::table)
             .values(&new_plan_model)
             .returning(PlanModel::as_select())

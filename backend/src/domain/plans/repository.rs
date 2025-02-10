@@ -1,3 +1,4 @@
+use crate::domain::plans::entities::plan::Plan;
 use crate::prelude::*;
 
 

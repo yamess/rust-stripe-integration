@@ -3,9 +3,9 @@ use serde_json::Value;
 use uuid::Uuid;
 use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
+use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
 use crate::domain::payment::entities::product_price::ProductPrice;
-use crate::domain::payment::old_entities::PaymentSession;
 use crate::domain::payment::service::PaymentService;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
@@ -136,6 +136,34 @@ impl PaymentService for StripePaymentService {
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
             tracing::error!("Failed to create checkout session (HTTP {}): {}", status, error_body);
+            let code = status.as_u16();
+            Err(Error::ApiError(code, error_body))
+        }
+    }
+
+    async fn create_billing_portal_session(&self, portal: &CustomerPortalSession) -> Result<CustomerPortalSession>{
+        let url = format!("{}/billing_portal/sessions", self.base_url);
+        let response = self.http
+            .post(&url)
+            .basic_auth(&self.secret_key, Some(""))
+            .json(&portal)
+            .send()
+            .await.map_err(|e| {
+                tracing::error!("Failed to create billing portal session: {:?}", e);
+                Error::TransportError("Failed to create billing portal session".to_string())
+            })?;
+
+        let status = response.status();
+
+        if status.is_success() {
+            let session = response.json::<CustomerPortalSession>().await.map_err(|e| {
+                tracing::error!("Failed to create billing portal session: {:?}", e);
+                Error::DeserializationError("Failed to create billing portal session".to_string())
+            })?;
+            Ok(session)
+        } else {
+            let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
+            tracing::error!("Failed to create billing portal session (HTTP {}): {}", status, error_body);
             let code = status.as_u16();
             Err(Error::ApiError(code, error_body))
         }
