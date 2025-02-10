@@ -1,3 +1,4 @@
 pub mod service;
 pub mod old_entities;
-mod entities;
+pub mod entities;
+pub mod value_objects;

@@ -1,2 +1,1 @@
-mod models;
-mod payment;
+pub mod payment;

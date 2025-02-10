@@ -1,5 +1,5 @@
-mod customer;
-mod product;
-mod product_price;
-mod checkout;
-mod subscription;
+pub mod customer;
+pub mod product;
+pub mod product_price;
+pub mod checkout;
+pub mod subscription;
