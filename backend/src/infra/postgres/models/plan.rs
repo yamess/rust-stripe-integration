@@ -1,4 +1,4 @@
-use diesel::{Insertable, Queryable, Selectable};
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use crate::domain::plans::entities::plan::Plan;
 use crate::schema::plans;
 use crate::prelude::*;
@@ -43,6 +43,23 @@ impl TryFrom<&Plan> for CreatePlanModel {
             name: plan.name().to_string(),
             description: plan.description().map(|s| s.to_string()),
             stripe_product_id: plan.stripe_product_id().to_string(),
+        })
+    }
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = plans, check_for_backend(diesel::pg::Pg))]
+pub struct UpdatePlanModel {
+    pub name: String,
+    pub description: Option<String>,
+}
+impl TryFrom<&Plan> for UpdatePlanModel {
+    type Error = Error;
+
+    fn try_from(plan: &Plan) -> Result<Self> {
+        Ok(Self {
+            name: plan.name().to_string(),
+            description: plan.description().map(|s| s.to_string()),
         })
     }
 }

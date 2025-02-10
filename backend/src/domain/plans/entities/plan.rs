@@ -38,13 +38,11 @@ impl Plan {
     pub fn rates(&self) -> &Vec<Rate> {
         &self.rates
     }
-    pub fn update(&mut self, name: Option<String>, description: Option<String>, stripe_product_id:
-                  Option<String>) {
+    pub fn update(&mut self, name: Option<String>, description: Option<String>) {
         self.name = name.unwrap_or_else(|| self.name.clone());
         if let Some(description) = description {
             self.description = Some(description);
         }
-        self.stripe_product_id = stripe_product_id.unwrap_or_else(|| self.stripe_product_id.clone());
     }
     pub fn add_rate(&mut self, rate: Rate) {
         self.rates.push(rate);

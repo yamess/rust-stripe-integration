@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
-use diesel::{Insertable, Queryable, Selectable};
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use rust_decimal::Decimal;
 use crate::domain::plans::entities::rate::Rate;
 use crate::domain::plans::value_objects::billing_cycle::BillingCycle;
@@ -59,6 +59,28 @@ impl TryFrom<&Rate> for CreateRateModel {
         Ok(Self {
             stripe_price_id: rate.stripe_price_id().to_string(),
             plan_id: rate.plan_id(),
+            currency: rate.currency().to_string(),
+            amount: rate.amount().value(),
+            billing_cycle: rate.billing_cycle().to_string(),
+            active: rate.active(),
+        })
+    }
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = rates, check_for_backend(diesel::pg::Pg))]
+#[diesel(belongs_to(PlanModel))]
+pub struct UpdateRateModel {
+    currency: String,
+    amount: Decimal,
+    billing_cycle: String,
+    active: bool
+}
+impl TryFrom<&Rate> for UpdateRateModel {
+    type Error = Error;
+
+    fn try_from(rate: &Rate) -> Result<Self> {
+        Ok(Self {
             currency: rate.currency().to_string(),
             amount: rate.amount().value(),
             billing_cycle: rate.billing_cycle().to_string(),
