@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::domain::plans::value_objects::currency::Currency;
+use crate::domain::plans::value_objects::price::Price;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Recurring {
@@ -14,8 +15,19 @@ pub struct ProductPrice {
     id: String,
     active: bool,
     currency: Currency,
-    unit_amount: i32,
+    unit_amount: Price,
     product: String,
     recurring: Recurring
 }
-
+impl ProductPrice {
+    pub fn new(active: bool, currency: Currency, unit_amount: Price, product: String, recurring: Recurring) -> Self {
+        Self {
+            id: "".to_string(),
+            active,
+            currency,
+            unit_amount,
+            product,
+            recurring
+        }
+    }
+}

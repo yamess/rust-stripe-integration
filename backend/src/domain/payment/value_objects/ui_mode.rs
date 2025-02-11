@@ -32,3 +32,16 @@ impl Serialize for UiMode {
         serializer.serialize_str(self.as_str())
     }
 }
+impl<'de> serde::Deserialize<'de> for UiMode {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_str() {
+            "embedded" => Ok(Self::Embedded),
+            "hosted" => Ok(Self::Hosted),
+            _ => Err(serde::de::Error::custom("expected 'embedded' or 'hosted'")),
+        }
+    }
+}

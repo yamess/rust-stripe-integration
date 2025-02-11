@@ -10,7 +10,7 @@ pub trait PaymentClient: Send + Sync {
     async fn create_product(&self, product: &Product) -> Result<Product>;
     async fn create_price(&self, price: &ProductPrice) -> Result<ProductPrice>;
     async fn create_checkout_session(&self, checkout: &CheckoutSession) -> Result<CheckoutSession>;
-    async fn create_billing_portal_session(
+    async fn create_portal_session(
         &self, portal: &CustomerPortalSession
     ) -> Result<CustomerPortalSession>;
     // async fn get_plans(&self) -> Result<Vec<Plan>>;

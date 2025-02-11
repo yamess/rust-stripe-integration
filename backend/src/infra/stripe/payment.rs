@@ -6,7 +6,7 @@ use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
 use crate::domain::payment::entities::product_price::ProductPrice;
-use crate::domain::payment::service::PaymentClient;
+use crate::domain::payment::client::PaymentClient;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
 
@@ -141,7 +141,7 @@ impl PaymentClient for StripePaymentClient {
         }
     }
 
-    async fn create_billing_portal_session(&self, portal: &CustomerPortalSession) -> Result<CustomerPortalSession>{
+    async fn create_portal_session(&self, portal: &CustomerPortalSession) -> Result<CustomerPortalSession>{
         let url = format!("{}/billing_portal/sessions", self.base_url);
         let response = self.http
             .post(&url)
