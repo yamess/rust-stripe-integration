@@ -5,7 +5,7 @@ use crate::domain::payment::entities::product_price::ProductPrice;
 use crate::domain::payment::entities::product::Product;
 use crate::prelude::*;
 
-pub trait PaymentService: Send + Sync {
+pub trait PaymentClient: Send + Sync {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer>;
     async fn create_product(&self, product: &Product) -> Result<Product>;
     async fn create_price(&self, price: &ProductPrice) -> Result<ProductPrice>;

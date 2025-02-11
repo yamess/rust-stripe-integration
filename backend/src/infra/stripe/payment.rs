@@ -6,19 +6,19 @@ use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
 use crate::domain::payment::entities::product_price::ProductPrice;
-use crate::domain::payment::service::PaymentService;
+use crate::domain::payment::service::PaymentClient;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
 
 
 #[derive(Clone)]
-pub struct StripePaymentService {
+pub struct StripePaymentClient {
     http: Arc<reqwest::Client>,
     secret_key: String,
     base_url: String,
 }
 
-impl StripePaymentService {
+impl StripePaymentClient {
     pub fn new(
         secret_key: &str,
         http_client: Arc<reqwest::Client>,
@@ -32,7 +32,7 @@ impl StripePaymentService {
     }
 }
 
-impl PaymentService for StripePaymentService {
+impl PaymentClient for StripePaymentClient {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer> {
         let url = format!("{}/customers", self.base_url);
         let response = self.http.post(&url)

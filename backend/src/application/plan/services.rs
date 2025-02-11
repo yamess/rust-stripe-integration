@@ -1,6 +1,7 @@
 use std::sync::Arc;
+use crate::domain::plans::entities::plan::Plan;
 use crate::domain::plans::repository::PlanRepository;
-
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct PlanService<R> {
@@ -12,5 +13,9 @@ impl<R: PlanRepository> PlanService<R> {
         Self {
             repo,
         }
+    }
+
+    pub async fn create_plan(&self, plan: &Plan) -> Result<Plan> {
+        self.repo.create(plan).await
     }
 }
