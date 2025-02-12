@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 use crate::domain::payment::entities::checkout::CheckoutSession;
@@ -10,6 +11,11 @@ use crate::domain::payment::client::PaymentClient;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
 
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetCustomerResponse {
+    data: Vec<Customer>,
+}
 
 #[derive(Clone)]
 pub struct StripePaymentClient {
@@ -35,10 +41,6 @@ impl StripePaymentClient {
 impl PaymentClient for StripePaymentClient {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer> {
         let url = format!("{}/customers", self.base_url);
-        let data = serde_urlencoded::to_string(customer).map_err(|e| {
-            tracing::error!("Failed to encode the data: {:?}", e);
-            Error::Serialization("Failed to encode customer data".to_string())
-        })?;
 
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert("Content-Type", "application/x-www-form-urlencoded".parse().unwrap());
@@ -64,6 +66,38 @@ impl PaymentClient for StripePaymentClient {
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
             tracing::error!("Failed to create customer (HTTP {}): {}", status, error_body);
+            let code = status.as_u16();
+            Err(Error::ApiError(code, error_body))
+        }
+    }
+
+    async fn get_customer(&self, email: &str) -> Result<Customer> {
+        let url = format!("{}/customers/search", self.base_url);
+        let query = format!("email:'{}'", email);
+        let response = self.http.get(&url)
+            .basic_auth(&self.secret_key, Some(""))
+            .query(&[("query", query)])
+            .send()
+            .await.map_err(|e| {
+                tracing::error!("Failed to get customer: {:?}", e);
+                Error::TransportError("Failed to get customer".to_string())
+            })?;
+
+        let status = response.status();
+
+        if status.is_success() {
+            let customer = response.json::<GetCustomerResponse>().await.map_err(|e| {
+                tracing::error!("Failed to get customer: {:?}", e);
+                Error::DeserializationError("Failed to get customer".to_string())
+            })?;
+            let customer = customer.data.into_iter().next().ok_or_else(|| {
+                tracing::error!("Failed to get customer: Customer not found");
+                Error::NotFound("Customer not found".to_string())
+            })?;
+            Ok(customer)
+        } else {
+            let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
+            tracing::error!("Failed to get customer (HTTP {}): {}", status, error_body);
             let code = status.as_u16();
             Err(Error::ApiError(code, error_body))
         }

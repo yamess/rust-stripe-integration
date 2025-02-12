@@ -1,6 +1,6 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto};
-use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreateCustomerUseCase, CreatePortalSessionUseCase, CreatePriceUseCase, CreateProductUseCase};
+use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreateCustomerUseCase, CreatePortalSessionUseCase, CreatePriceUseCase, CreateProductUseCase, GetCustomerUseCase};
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 
@@ -14,6 +14,19 @@ pub async fn create_customer(
     let new_customer = new_customer.into_inner();
     match use_case.execute(new_customer).await {
         Ok(customer) => Ok(HttpResponse::Created().json(customer)),
+        Err(e) => Err(e)
+    }
+}
+
+#[get("/customers/{email}")]
+pub async fn get_customer(
+    state: web::Data<AppState>, email: web::Path<String>
+) -> Result<impl Responder> {
+    let service = state.payment_service.clone();
+    let use_case = GetCustomerUseCase::new(service);
+    let email = email.into_inner();
+    match use_case.execute(&email).await {
+        Ok(customer) => Ok(HttpResponse::Ok().json(customer)),
         Err(e) => Err(e)
     }
 }

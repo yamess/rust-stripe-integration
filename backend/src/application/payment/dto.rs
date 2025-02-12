@@ -14,8 +14,8 @@ use crate::prelude::*;
 //*******************************************//
 #[derive(Debug, Deserialize)]
 pub struct NewCustomerDto {
-    email: String,
-    name: String
+    pub email: String,
+    pub name: String
 }
 impl NewCustomerDto {
     pub fn new(email: String, name: String) -> Self {

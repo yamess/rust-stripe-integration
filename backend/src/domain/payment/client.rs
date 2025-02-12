@@ -7,6 +7,7 @@ use crate::prelude::*;
 
 pub trait PaymentClient: Send + Sync {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer>;
+    async fn get_customer(&self, email: &str) -> Result<Customer>;
     async fn create_product(&self, product: &Product) -> Result<Product>;
     async fn create_price(&self, price: &ProductPrice) -> Result<ProductPrice>;
     async fn create_checkout_session(&self, checkout: &CheckoutSession) -> Result<CheckoutSession>;

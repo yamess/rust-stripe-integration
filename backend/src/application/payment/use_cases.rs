@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto};
 use crate::application::payment::service::PaymentService;
 use crate::domain::payment::client::PaymentClient;
@@ -20,7 +19,26 @@ impl <C: PaymentClient> CreateCustomerUseCase<C> {
     }
 
     pub async fn execute(&self, new_customer: NewCustomerDto) -> Result<Customer> {
-        self.service.create_customer(new_customer).await
+        let result = self.service.get_customer(&new_customer.email).await;
+        match result {
+            Ok(customer) => Ok(customer),
+            Err(Error::NotFound(_)) => self.service.create_customer(new_customer).await,
+            Err(e) => Err(e),
+        }
+
+    }
+}
+
+pub struct GetCustomerUseCase<C> {
+    service: PaymentService<C>,
+}
+impl <C: PaymentClient> GetCustomerUseCase<C> {
+    pub fn new(service: PaymentService<C>) -> Self {
+        Self { service }
+    }
+
+    pub async fn execute(&self, email: &str) -> Result<Customer> {
+        self.service.get_customer(email).await
     }
 }
 
