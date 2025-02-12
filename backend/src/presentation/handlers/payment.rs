@@ -1,6 +1,8 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
-use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto};
-use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreateCustomerUseCase, CreatePortalSessionUseCase, CreatePriceUseCase, CreateProductUseCase, GetCustomerUseCase};
+use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto, PriceSearchQuery};
+use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreateCustomerUseCase,
+                                             CreatePortalSessionUseCase, CreatePriceUseCase, CreateProductUseCase, GetCustomerUseCase, GetProductUseCase, SearchPricesUseCase};
+use crate::domain::plans::value_objects::currency::Currency;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 
@@ -43,6 +45,18 @@ pub async fn create_product(
         Err(e) => Err(e)
     }
 }
+#[get("/products/{name}")]
+pub async fn get_product(
+    state: web::Data<AppState>, name: web::Path<String>
+) -> Result<impl Responder> {
+    let service = state.payment_service.clone();
+    let use_case = GetProductUseCase::new(service);
+    let name = name.into_inner();
+    match use_case.execute(&name).await {
+        Ok(product) => Ok(HttpResponse::Ok().json(product)),
+        Err(e) => Err(e)
+    }
+}
 
 #[post("/prices")]
 pub async fn create_price(
@@ -56,6 +70,20 @@ pub async fn create_price(
         Err(e) => Err(e)
     }
 }
+
+#[get("/prices")]
+pub async fn search_prices(
+    state: web::Data<AppState>, query: web::Query<PriceSearchQuery>
+) -> Result<impl Responder> {
+    let service = state.payment_service.clone();
+    let use_case = SearchPricesUseCase::new(service);
+    let query = query.into_inner();
+    match use_case.execute(query).await {
+        Ok(prices) => Ok(HttpResponse::Ok().json(prices)),
+        Err(e) => Err(e)
+    }
+}
+
 
 #[post("/checkout/sessions")]
 pub async fn create_checkout_session(

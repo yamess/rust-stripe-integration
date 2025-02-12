@@ -1,4 +1,5 @@
-use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto};
+use std::str::FromStr;
+use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto, PriceSearchQuery};
 use crate::application::payment::service::PaymentService;
 use crate::domain::payment::client::PaymentClient;
 use crate::domain::payment::entities::checkout::CheckoutSession;
@@ -6,9 +7,12 @@ use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
 use crate::domain::payment::entities::product_price::ProductPrice;
+use crate::domain::plans::value_objects::currency::Currency;
 use crate::prelude::*;
 
-
+//************************************************//
+//            Create Customer Use Cases                   //
+//************************************************//
 #[derive(Clone)]
 pub struct CreateCustomerUseCase<C> {
     service: PaymentService<C>,
@@ -42,6 +46,10 @@ impl <C: PaymentClient> GetCustomerUseCase<C> {
     }
 }
 
+
+//*******************************************************//
+//            Create Product Use Cases                   //
+//*******************************************************//
 #[derive(Clone)]
 pub struct CreateProductUseCase<C> {
     service: PaymentService<C>,
@@ -52,10 +60,33 @@ impl <C: PaymentClient> CreateProductUseCase<C> {
     }
 
     pub async fn execute(&self, new_product: NewProductDto) -> Result<Product> {
-        self.service.create_product(new_product).await
+        let result = self.service.get_product(&new_product.name).await;
+        match result {
+            Ok(product) => Ok(product),
+            Err(Error::NotFound(_)) => self.service.create_product(new_product).await,
+            Err(e) => Err(e),
+        }
     }
 }
 
+#[derive(Clone)]
+pub struct GetProductUseCase<C> {
+    service: PaymentService<C>,
+}
+impl <C: PaymentClient> GetProductUseCase<C> {
+    pub fn new(service: PaymentService<C>) -> Self {
+        Self { service }
+    }
+
+    pub async fn execute(&self, name: &str) -> Result<Product> {
+        self.service.get_product(name).await
+    }
+}
+
+
+//*******************************************************//
+//              Create Price Use Cases                   //
+//*******************************************************//
 #[derive(Clone)]
 pub struct CreatePriceUseCase<C> {
     service: PaymentService<C>,
@@ -70,6 +101,23 @@ impl <C: PaymentClient> CreatePriceUseCase<C> {
     }
 }
 
+pub struct SearchPricesUseCase<C> {
+    service: PaymentService<C>,
+}
+impl <C: PaymentClient> SearchPricesUseCase<C> {
+    pub fn new(service: PaymentService<C>) -> Self {
+        Self { service }
+    }
+
+    pub async fn execute(&self, query: PriceSearchQuery) -> Result<Vec<ProductPrice>> {
+        self.service.search_prices(&query.currency, query.active).await
+    }
+}
+
+
+//*******************************************************//
+//              Create Checkout Use Cases                //
+//*******************************************************//
 #[derive(Clone)]
 pub struct CreateCheckoutSessionUseCase<C> {
     service: PaymentService<C>,

@@ -34,7 +34,7 @@ impl TryFrom<NewCustomerDto> for Customer {
 //*******************************************//
 #[derive(Debug, Deserialize)]
 pub struct NewProductDto {
-    name: String,
+    pub name: String,
 }
 impl NewProductDto {
     pub fn new(name: String) -> Self {
@@ -69,6 +69,12 @@ impl TryFrom<NewPriceDto> for ProductPrice {
     fn try_from(dto: NewPriceDto) -> Result<Self> {
         Ok(ProductPrice::new(dto.active, dto.currency, dto.unit_amount, dto.product, dto.recurring))
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PriceSearchQuery {
+    pub currency: Currency,
+    pub active: bool
 }
 
 //***************************************************//

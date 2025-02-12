@@ -63,7 +63,7 @@ pub enum Error {
     InternalError,
 
     #[error("Transport error. Cause: {0}")]
-    TransportError(String),
+    TransportError(#[from] reqwest::Error),
 
     #[error("External API error. Status: {0}, Body: {1}")]
     ApiError(u16, String),
