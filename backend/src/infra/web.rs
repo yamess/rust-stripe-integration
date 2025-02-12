@@ -38,6 +38,10 @@ pub async fn run() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(Data::new(app_state.clone()))
             .service(
+                scope("/v1/payment")
+                    .configure(routers::payment::routes)
+            )
+            .service(
                 scope("/v1")
                     .configure(routers::probes::routes)
                     .configure(routers::users::routes)

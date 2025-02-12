@@ -35,9 +35,18 @@ impl StripePaymentClient {
 impl PaymentClient for StripePaymentClient {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer> {
         let url = format!("{}/customers", self.base_url);
+        let data = serde_urlencoded::to_string(customer).map_err(|e| {
+            tracing::error!("Failed to encode the data: {:?}", e);
+            Error::Serialization("Failed to encode customer data".to_string())
+        })?;
+
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert("Content-Type", "application/x-www-form-urlencoded".parse().unwrap());
+
         let response = self.http.post(&url)
             .basic_auth(&self.secret_key, Some(""))
-            .json(&customer)
+            .headers(headers)
+            .form(&customer)
             .send()
             .await.map_err(|e| {
                 tracing::error!("Failed to create customer: {:?}", e);
@@ -50,6 +59,7 @@ impl PaymentClient for StripePaymentClient {
                 tracing::error!("Failed to create customer: {:?}", e);
                 Error::DeserializationError("Failed to create customer".to_string())
             })?;
+            tracing::info!("Created customer: {:?}", customer);
             Ok(customer)
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());

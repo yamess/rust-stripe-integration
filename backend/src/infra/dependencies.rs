@@ -2,14 +2,17 @@ use crate::application::user::service::{AuthenticationService, UserService};
 use crate::infra::config::Config;
 use crate::infra::postgres::connection::establish_connection;
 use std::sync::Arc;
+use crate::application::payment::service::PaymentService;
 use crate::infra::firebase::service::FirebaseAuthenticatorService;
 use crate::infra::postgres::repositories::user::PostgresUserRepository;
+use crate::infra::stripe::payment::StripePaymentClient;
 
 #[derive(Clone)]
 pub struct AppState {
     pub config: Config,
     pub user_service: UserService<PostgresUserRepository>,
-    pub auth_service: AuthenticationService<FirebaseAuthenticatorService>
+    pub auth_service: AuthenticationService<FirebaseAuthenticatorService>,
+    pub payment_service: PaymentService<StripePaymentClient>
 }
 
 impl AppState {
@@ -23,13 +26,22 @@ impl AppState {
         let auth_client = Arc::new(FirebaseAuthenticatorService::new(
             config.secrets().firebase_api_key(), http_client.clone()
         ));
+        let payment_client = Arc::new(
+            StripePaymentClient::new(
+                config.secrets().stripe_secret_key(),
+                http_client.clone(),
+                "https://api.stripe.com/v1"
+            )
+        );
 
         let user_service = UserService::new(pg_user_repository);
         let auth_service = AuthenticationService::new(auth_client);
+        let payment_service = PaymentService::new(payment_client);
         Self {
             config,
             user_service,
-            auth_service
+            auth_service,
+            payment_service
         }
     }
 }

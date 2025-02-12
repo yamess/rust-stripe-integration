@@ -67,6 +67,9 @@ pub enum Error {
 
     #[error("External API error. Status: {0}, Body: {1}")]
     ApiError(u16, String),
+
+    #[error("Failed to serialize data. Cause: {0}")]
+    Serialization(String),
 }
 
 impl ResponseError for Error {
