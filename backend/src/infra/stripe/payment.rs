@@ -2,15 +2,15 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
-use crate::domain::payment::entities::checkout::CheckoutSession;
+use crate::domain::payment::entities::checkout::{CheckoutSession, CheckoutSessionResponse};
 use crate::domain::payment::entities::customer::Customer;
-use crate::domain::payment::entities::portal::CustomerPortalSession;
+use crate::domain::payment::entities::portal::{CustomerPortalSession, CustomerPortalSessionResponse};
 use crate::domain::payment::entities::product::Product;
 use crate::domain::payment::entities::product_price::ProductPrice;
 use crate::domain::payment::client::PaymentClient;
 use crate::domain::plans::value_objects::currency::Currency;
 use crate::domain::user::entities::User;
-use crate::infra::stripe::models::{GetCustomerResponse, GetProductResponse, ProductPriceForm, SearchPriceResponse};
+use crate::infra::stripe::models::{CheckoutSessionForm, GetCustomerResponse, GetProductResponse, ProductPriceForm, SearchPriceResponse};
 use crate::prelude::*;
 
 
@@ -205,22 +205,24 @@ impl PaymentClient for StripePaymentClient {
         }
     }
 
-    async fn create_checkout_session(&self, checkout: &CheckoutSession) -> Result<CheckoutSession> {
+    async fn create_checkout_session(
+        &self, checkout: &CheckoutSession
+    ) -> Result<CheckoutSessionResponse> {
         let url = format!("{}/checkout/sessions", self.base_url);
+        let form_data = CheckoutSessionForm::try_from(checkout)?;
+
         let response = self.http
             .post(&url)
+            .headers(self.headers.clone())
             .basic_auth(&self.secret_key, Some(""))
-            .json(&checkout)
+            .form(&form_data.data)
             .send()
             .await?;
 
         let status = response.status();
 
         if status.is_success() {
-            let session = response.json::<CheckoutSession>().await.map_err(|e| {
-                tracing::error!("Failed to create checkout session: {:?}", e);
-                Error::DeserializationError("Failed to create checkout session".to_string())
-            })?;
+            let session = response.json::<CheckoutSessionResponse>().await?;
             Ok(session)
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
@@ -230,22 +232,28 @@ impl PaymentClient for StripePaymentClient {
         }
     }
 
-    async fn create_portal_session(&self, portal: &CustomerPortalSession) -> Result<CustomerPortalSession>{
+    async fn create_portal_session(&self, portal: &CustomerPortalSession) ->
+                                                                          Result<CustomerPortalSession>{
         let url = format!("{}/billing_portal/sessions", self.base_url);
         let response = self.http
             .post(&url)
             .basic_auth(&self.secret_key, Some(""))
-            .json(&portal)
+            .form(&portal)
             .send()
             .await?;
 
         let status = response.status();
 
         if status.is_success() {
-            let session = response.json::<CustomerPortalSession>().await.map_err(|e| {
+            let response = response.json::<CustomerPortalSessionResponse>().await.map_err(|e| {
                 tracing::error!("Failed to create billing portal session: {:?}", e);
                 Error::DeserializationError("Failed to create billing portal session".to_string())
             })?;
+            tracing::info!("Created billing portal session: {:?}", response);
+            let session = CustomerPortalSession::new(
+                response.customer.clone(),
+                response.return_url.clone(),
+            );
             Ok(session)
         } else {
             let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());

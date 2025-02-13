@@ -1,0 +1,1 @@
+pub static TRIAL_PERIOD_DAYS: i32 = 7;

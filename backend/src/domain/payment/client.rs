@@ -1,4 +1,4 @@
-use crate::domain::payment::entities::checkout::CheckoutSession;
+use crate::domain::payment::entities::checkout::{CheckoutSession, CheckoutSessionResponse};
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product_price::ProductPrice;
@@ -17,7 +17,8 @@ pub trait PaymentClient: Send + Sync {
     async fn search_prices(&self, currency: &Currency, product: &str, active: bool) ->
                                                                         Result<Vec<ProductPrice>>;
 
-    async fn create_checkout_session(&self, checkout: &CheckoutSession) -> Result<CheckoutSession>;
+    async fn create_checkout_session(&self, checkout: &CheckoutSession) ->
+                                                                        Result<CheckoutSessionResponse>;
     async fn create_portal_session(
         &self, portal: &CustomerPortalSession
     ) -> Result<CustomerPortalSession>;

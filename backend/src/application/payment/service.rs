@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto};
 use crate::domain::payment::client::PaymentClient;
-use crate::domain::payment::entities::checkout::CheckoutSession;
+use crate::domain::payment::entities::checkout::{CheckoutSession, CheckoutSessionResponse};
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
@@ -54,7 +54,8 @@ impl<C: PaymentClient> PaymentService<C> {
         Ok(result)
     }
 
-    pub async fn create_checkout_session(&self, new_checkout: NewCheckoutSessionDto) -> Result<CheckoutSession> {
+    pub async fn create_checkout_session(&self, new_checkout: NewCheckoutSessionDto) ->
+                                                                                     Result<CheckoutSessionResponse> {
         let checkout = CheckoutSession::try_from(new_checkout)?;
         let result = self.client.create_checkout_session(&checkout).await?;
         Ok(result)

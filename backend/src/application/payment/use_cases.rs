@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto, PriceSearchQuery};
 use crate::application::payment::service::PaymentService;
 use crate::domain::payment::client::PaymentClient;
-use crate::domain::payment::entities::checkout::CheckoutSession;
+use crate::domain::payment::entities::checkout::{CheckoutSession, CheckoutSessionResponse};
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::payment::entities::product::Product;
@@ -106,7 +106,12 @@ impl <C: PaymentClient> CreatePriceUseCase<C> {
         )
             .await?
             .into_iter()
-            .find(|price| price.unit_amount() == new_price.unit_amount);
+            .find(|price| {
+                price.unit_amount() == new_price.unit_amount
+                    && price.recurring().trial_period_days == new_price.recurring.trial_period_days
+                    && price.recurring().interval == new_price.recurring.interval
+                    && price.recurring().interval_count == new_price.recurring.interval_count
+                });
         if let Some(price) = result {
             return Ok(price);
         }
@@ -140,7 +145,7 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
         Self { service }
     }
 
-    pub async fn execute(&self, new_checkout: NewCheckoutSessionDto) -> Result<CheckoutSession> {
+    pub async fn execute(&self, new_checkout: NewCheckoutSessionDto) -> Result<CheckoutSessionResponse> {
         self.service.create_checkout_session(new_checkout).await
     }
 }

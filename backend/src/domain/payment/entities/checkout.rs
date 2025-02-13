@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 use crate::domain::payment::value_objects::ui_mode::UiMode;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LineItem {
-    price: String,
-    quantity: i32,
+    pub price: String,
+    pub quantity: i32,
 }
 
 
@@ -87,5 +88,25 @@ impl CheckoutSession {
 
     pub fn url(&self) -> &str {
         &self.url
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CheckoutSessionResponse {
+    pub id: String,
+    pub url: String,
+    pub amount_subtotal: i64,
+    pub amount_total: i64,
+    pub currency: String,
+}
+impl CheckoutSessionResponse {
+    pub fn new(id: String, url: String, amount_subtotal: i64, amount_total: i64, currency: String) -> Self {
+        Self {
+            id,
+            url,
+            amount_subtotal,
+            amount_total,
+            currency,
+        }
     }
 }

@@ -1,5 +1,14 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CustomerPortalSessionResponse {
+    pub id: String,
+    pub customer: String,
+    pub return_url: String,
+    pub url: String,
+}
+
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomerPortalSession {
     #[serde(skip_serializing)]

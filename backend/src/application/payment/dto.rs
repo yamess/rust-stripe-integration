@@ -87,7 +87,9 @@ pub struct NewCheckoutSessionDto {
     customer: String,
     customer_email: String,
     line_items: Vec<LineItem>,
+    #[serde(skip_deserializing)]
     mode: String,
+    #[serde(skip_deserializing)]
     ui_mode: UiMode,
     return_url: Option<String>,
     success_url: Option<String>,
@@ -123,8 +125,8 @@ impl TryFrom<NewCheckoutSessionDto> for CheckoutSession {
             dto.customer,
             dto.customer_email,
             dto.line_items,
-            dto.mode,
-            dto.ui_mode,
+            "subscription".to_string(),
+            UiMode::Hosted,
             dto.return_url,
             dto.success_url,
             dto.cancel_url,
