@@ -60,7 +60,7 @@ impl TryFrom<&Rate> for CreateRateModel {
             stripe_price_id: rate.stripe_price_id().to_string(),
             plan_id: rate.plan_id(),
             currency: rate.currency().to_string(),
-            amount: rate.amount().value(),
+            amount: rate.amount().to_decimal()?,
             billing_cycle: rate.billing_cycle().to_string(),
             active: rate.active(),
         })
@@ -82,7 +82,7 @@ impl TryFrom<&Rate> for UpdateRateModel {
     fn try_from(rate: &Rate) -> Result<Self> {
         Ok(Self {
             currency: rate.currency().to_string(),
-            amount: rate.amount().value(),
+            amount: rate.amount().to_decimal()?,
             billing_cycle: rate.billing_cycle().to_string(),
             active: rate.active(),
         })

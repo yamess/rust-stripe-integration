@@ -10,7 +10,7 @@ use crate::domain::payment::entities::product_price::ProductPrice;
 use crate::domain::payment::client::PaymentClient;
 use crate::domain::plans::value_objects::currency::Currency;
 use crate::domain::user::entities::User;
-use crate::infra::stripe::models::{GetCustomerResponse, GetProductResponse, SearchPriceResponse};
+use crate::infra::stripe::models::{GetCustomerResponse, GetProductResponse, ProductPriceForm, SearchPriceResponse};
 use crate::prelude::*;
 
 
@@ -42,7 +42,6 @@ impl StripePaymentClient {
 impl PaymentClient for StripePaymentClient {
     async fn create_customer(&self, customer: &Customer) -> Result<Customer> {
         let url = format!("{}/customers", self.base_url);
-
         let response = self.http.post(&url)
             .basic_auth(&self.secret_key, Some(""))
             .headers(self.headers.clone())
@@ -150,11 +149,14 @@ impl PaymentClient for StripePaymentClient {
     
     async fn create_price(&self, price: &ProductPrice) -> Result<ProductPrice> {
         let url = format!("{}/prices", self.base_url);
-
+        let form_data = ProductPriceForm::try_from(price).map_err(|e| {
+            tracing::error!("Failed to serialize price data: {:?}", e);
+            Error::Serialization("Failed to create price".to_string())
+        })?;
         let response = self.http.post(&url)
             .basic_auth(&self.secret_key, Some(""))
             .headers(self.headers.clone())
-            .form(&price)
+            .form(&form_data)
             .send()
             .await?;
 
@@ -174,9 +176,13 @@ impl PaymentClient for StripePaymentClient {
         }
     }
 
-    async fn search_prices(&self, currency: &Currency, active: bool) -> Result<Vec<ProductPrice>>{
+    async fn search_prices(&self, currency: &Currency, product: &str, active: bool) ->
+                                                                        Result<Vec<ProductPrice>>{
         let url = format!("{}/prices/search", self.base_url);
-        let query = format!("currency:'{}' active:'{}'", currency, active);
+        let query = format!(
+            "currency:'{}' active:'{}' product:'{}' type:'recurring'",
+            currency, active, product
+        );
         let response = self.http.get(&url)
             .basic_auth(&self.secret_key, Some(""))
             .query(&[("query", query)])

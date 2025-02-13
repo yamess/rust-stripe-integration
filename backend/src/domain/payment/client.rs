@@ -14,7 +14,8 @@ pub trait PaymentClient: Send + Sync {
     async fn get_product(&self, name: &str) -> Result<Product>;
 
     async fn create_price(&self, price: &ProductPrice) -> Result<ProductPrice>;
-    async fn search_prices(&self, currency: &Currency, active: bool) -> Result<Vec<ProductPrice>>;
+    async fn search_prices(&self, currency: &Currency, product: &str, active: bool) ->
+                                                                        Result<Vec<ProductPrice>>;
 
     async fn create_checkout_session(&self, checkout: &CheckoutSession) -> Result<CheckoutSession>;
     async fn create_portal_session(

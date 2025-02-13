@@ -53,14 +53,15 @@ impl TryFrom<NewProductDto> for Product {
 //*******************************************//
 #[derive(Debug, Deserialize)]
 pub struct NewPriceDto {
-    active: bool,
-    currency: Currency,
-    unit_amount: Price,
-    product: String,
-    recurring: Recurring
+    pub active: bool,
+    pub currency: Currency,
+    pub unit_amount: i64,
+    pub product: String,
+    pub recurring: Recurring
 }
 impl NewPriceDto {
-    pub fn new(active: bool, currency: Currency, unit_amount: Price, product: String, recurring: Recurring) -> Self {
+    pub fn new(active: bool, currency: Currency, unit_amount: i64, product: String, recurring:
+    Recurring) -> Self {
         Self { active, currency, unit_amount, product, recurring }
     }
 }
@@ -74,7 +75,8 @@ impl TryFrom<NewPriceDto> for ProductPrice {
 #[derive(Debug, Deserialize)]
 pub struct PriceSearchQuery {
     pub currency: Currency,
-    pub active: bool
+    pub active: bool,
+    pub product: String
 }
 
 //***************************************************//

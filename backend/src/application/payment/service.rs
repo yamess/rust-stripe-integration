@@ -48,9 +48,9 @@ impl<C: PaymentClient> PaymentService<C> {
     }
 
     pub async fn search_prices(
-        &self, currency: &Currency, active: bool
+        &self, currency: &Currency, product: &str, active: bool
     ) -> Result<Vec<ProductPrice>> {
-        let result = self.client.search_prices(currency, active).await?;
+        let result = self.client.search_prices(currency, product, active).await?;
         Ok(result)
     }
 

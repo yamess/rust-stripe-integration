@@ -1,3 +1,4 @@
+use std::cmp::PartialEq;
 use std::str::FromStr;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto, PriceSearchQuery};
 use crate::application::payment::service::PaymentService;
@@ -91,12 +92,24 @@ impl <C: PaymentClient> GetProductUseCase<C> {
 pub struct CreatePriceUseCase<C> {
     service: PaymentService<C>,
 }
+
 impl <C: PaymentClient> CreatePriceUseCase<C> {
     pub fn new(service: PaymentService<C>) -> Self {
         Self { service }
     }
 
     pub async fn execute(&self, new_price: NewPriceDto) -> Result<ProductPrice> {
+        let result = self.service.search_prices(
+            &new_price.currency,
+            &new_price.product,
+            true
+        )
+            .await?
+            .into_iter()
+            .find(|price| price.unit_amount() == new_price.unit_amount);
+        if let Some(price) = result {
+            return Ok(price);
+        }
         self.service.create_price(new_price).await
     }
 }
@@ -110,7 +123,7 @@ impl <C: PaymentClient> SearchPricesUseCase<C> {
     }
 
     pub async fn execute(&self, query: PriceSearchQuery) -> Result<Vec<ProductPrice>> {
-        self.service.search_prices(&query.currency, query.active).await
+        self.service.search_prices(&query.currency, &query.product, query.active).await
     }
 }
 
