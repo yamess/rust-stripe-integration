@@ -3,5 +3,10 @@ port = 8080
 log_level = "debug"
 cors_origin = "http://localhost:3000"
 
+[stripe]
+product_id = "prod_RlnHkRra6pwlnu"
+price_id = "price_1QsFhG2ZudXYzo8UUKxwRrfX"
+ui_mode = "hosted"
+mode = "subscription"
 success_page = "http://localhost:3000/success"
-failure_page = "http://localhost:3000/failure"
+cancel_page = "http://localhost:3000/cancel"
