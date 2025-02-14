@@ -10,7 +10,7 @@ pub struct User {
     id: Uuid,
     email: String,
     firebase_id: String,
-    stripe_customer_id: String,
+    stripe_customer_id: Option<String>,
     status: UserStatus,
     role: Role,
     created_at: DateTime<Utc>,
@@ -21,7 +21,7 @@ impl User {
     pub fn new(
         email: String,
         firebase_id: String,
-        stripe_customer_id: String,
+        stripe_customer_id: Option<String>,
     ) -> Self {
         Self {
             id: Uuid::nil(), // Real value will set by the repository database
@@ -48,8 +48,8 @@ impl User {
         &self.firebase_id
     }
 
-    pub fn stripe_customer_id(&self) -> &str {
-        &self.stripe_customer_id
+    pub fn stripe_customer_id(&self) -> Option<&str> {
+        self.stripe_customer_id.as_deref()
     }
 
     pub fn status(&self) -> UserStatus {
@@ -72,10 +72,13 @@ impl User {
         &self.profile
     }
 
-    pub fn update(&mut self, status: UserStatus, role: Role) {
+    pub fn update(&mut self, status: UserStatus, role: Role, stripe_customer_id: Option<String>) {
         self.status = status;
         self.role = role;
         self.updated_at = Some(Utc::now());
+        if let Some(stripe_customer_id) = stripe_customer_id {
+            self.stripe_customer_id = Some(stripe_customer_id);
+        }
     }
 
     pub fn update_profile(
@@ -92,7 +95,7 @@ impl User {
         id: Uuid,
         email: String,
         firebase_id: String,
-        stripe_customer_id: String,
+        stripe_customer_id: Option<String>,
         status: UserStatus,
         role: Role,
         created_at: DateTime<Utc>,

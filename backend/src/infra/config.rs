@@ -41,22 +41,11 @@ impl Secrets {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct StripeConfig {
-    pub product_id: String,
-    pub price_id: String,
-    pub ui_mode: String,
-    pub mode: String,
-    pub success_page: String,
-    pub cancel_page: String
-}
-
-#[derive(Debug, Clone, Deserialize)]
 pub struct AppConfig {
     pub host: String,
     pub port: u16,
     pub log_level: String,
     pub cors_origin: String,
-    pub stripe: StripeConfig,
 }
 impl AppConfig {
     pub fn new(config_str: &str) -> Self {

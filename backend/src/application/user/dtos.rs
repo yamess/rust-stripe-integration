@@ -10,24 +10,13 @@ use crate::prelude::*;
 pub struct NewUserDto {
     pub email: String,
 }
-impl TryFrom<NewUserDto> for User {
-    type Error = Error;
-
-    fn try_from(new_user: NewUserDto) -> Result<Self> {
-        Ok(User::new(
-            new_user.email,
-            "".to_string(),
-            "".to_string(),
-        ))
-    }
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct UserDto {
     pub id: Uuid,
     pub email: String,
     pub firebase_id: String,
-    pub stripe_customer_id: String,
+    pub stripe_customer_id: Option<String>,
     pub status: UserStatus,
     pub role: Role,
     pub created_at: DateTime<Utc>,
@@ -42,7 +31,7 @@ impl TryFrom<&User> for UserDto {
             id: user.id(),
             email: user.email().to_string(),
             firebase_id: user.firebase_id().to_string(),
-            stripe_customer_id: user.stripe_customer_id().to_string(),
+            stripe_customer_id: user.stripe_customer_id().map(|s| s.to_string()),
             status: user.status(),
             role: user.role(),
             created_at: user.created_at(),
@@ -81,6 +70,7 @@ impl TryFrom<&UserDto> for User {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserDto {
+    pub stripe_customer_id: Option<String>,
     pub status: UserStatus,
     pub first_name: Option<String>,
     pub last_name: Option<String>,

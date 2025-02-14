@@ -1,15 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    plans (id) {
-        id -> Int4,
-        name -> Varchar,
-        description -> Nullable<Varchar>,
-        stripe_product_id -> Varchar,
-    }
-}
-
-diesel::table! {
     profiles (id) {
         id -> Int4,
         user_id -> Uuid,
@@ -23,24 +14,11 @@ diesel::table! {
 }
 
 diesel::table! {
-    rates (id) {
-        id -> Int4,
-        stripe_price_id -> Varchar,
-        plan_id -> Int4,
-        currency -> Varchar,
-        amount -> Numeric,
-        billing_cycle -> Varchar,
-        active -> Bool,
-        created_at -> Timestamptz,
-        updated_at -> Nullable<Timestamptz>,
-    }
-}
-
-diesel::table! {
     subscriptions (id) {
         id -> Int4,
         user_id -> Uuid,
-        rate_id -> Int4,
+        stripe_customer_id -> Varchar,
+        stripe_price_id -> Varchar,
         stripe_subscription_id -> Varchar,
         status -> Varchar,
         current_period_end -> Nullable<Timestamptz>,
@@ -55,7 +33,7 @@ diesel::table! {
         id -> Uuid,
         email -> Varchar,
         firebase_id -> Varchar,
-        stripe_customer_id -> Varchar,
+        stripe_customer_id -> Nullable<Varchar>,
         status -> Varchar,
         role -> Varchar,
         created_at -> Timestamptz,
@@ -64,14 +42,10 @@ diesel::table! {
 }
 
 diesel::joinable!(profiles -> users (user_id));
-diesel::joinable!(rates -> plans (plan_id));
-diesel::joinable!(subscriptions -> rates (rate_id));
 diesel::joinable!(subscriptions -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    plans,
     profiles,
-    rates,
     subscriptions,
     users,
 );

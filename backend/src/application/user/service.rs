@@ -84,7 +84,7 @@ impl<U: UserRepository> UserService<U> {
 
     pub async fn update(&self, updates: UpdateUserDto, user: &mut User) -> Result<UserDto> {
         user.update_profile(updates.first_name, updates.last_name, updates.phone, updates.photo_url);
-        user.update(updates.status, user.role());
+        user.update(updates.status, user.role(), updates.stripe_customer_id);
 
         let user = self.user_repo.update(user).await?;
 

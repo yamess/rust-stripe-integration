@@ -1,12 +1,7 @@
 use serde::{Deserialize, Serialize};
-use crate::domain::payment::entities::checkout::{CheckoutSession, LineItem};
+use crate::domain::payment::entities::checkout::{LineItem};
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
-use crate::domain::payment::entities::product::Product;
-use crate::domain::payment::entities::product_price::{ProductPrice, Recurring};
-use crate::domain::payment::value_objects::ui_mode::UiMode;
-use crate::domain::plans::value_objects::currency::Currency;
-use crate::domain::plans::value_objects::price::Price;
 use crate::prelude::*;
 
 //*******************************************//
@@ -29,108 +24,26 @@ impl TryFrom<NewCustomerDto> for Customer {
     }
 }
 
-//*******************************************//
-//************** NewProductDto **************//
-//*******************************************//
-#[derive(Debug, Deserialize)]
-pub struct NewProductDto {
-    pub name: String,
-}
-impl NewProductDto {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-}
-impl TryFrom<NewProductDto> for Product {
-    type Error = Error;
-    fn try_from(dto: NewProductDto) -> Result<Self> {
-        Ok(Product::new(dto.name))
-    }
-}
-
-//*******************************************//
-//*************** NewPriceDto ***************//
-//*******************************************//
-#[derive(Debug, Deserialize)]
-pub struct NewPriceDto {
-    pub active: bool,
-    pub currency: Currency,
-    pub unit_amount: i64,
-    pub product: String,
-    pub recurring: Recurring
-}
-impl NewPriceDto {
-    pub fn new(active: bool, currency: Currency, unit_amount: i64, product: String, recurring:
-    Recurring) -> Self {
-        Self { active, currency, unit_amount, product, recurring }
-    }
-}
-impl TryFrom<NewPriceDto> for ProductPrice {
-    type Error = Error;
-    fn try_from(dto: NewPriceDto) -> Result<Self> {
-        Ok(ProductPrice::new(dto.active, dto.currency, dto.unit_amount, dto.product, dto.recurring))
-    }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct PriceSearchQuery {
-    pub currency: Currency,
-    pub active: bool,
-    pub product: String
-}
-
 //***************************************************//
 //************** NewCheckoutSessionDto **************//
 //***************************************************//
 #[derive(Debug, Deserialize)]
 pub struct NewCheckoutSessionDto {
-    customer: String,
-    customer_email: String,
-    line_items: Vec<LineItem>,
-    #[serde(skip_deserializing)]
-    mode: String,
-    #[serde(skip_deserializing)]
-    ui_mode: UiMode,
-    return_url: Option<String>,
-    success_url: Option<String>,
-    cancel_url: Option<String>,
+    pub line_items: Vec<LineItem>,
+    pub success_url: Option<String>,
+    pub cancel_url: Option<String>,
 }
 impl NewCheckoutSessionDto {
     pub fn new(
-        customer: String,
-        customer_email: String,
         line_items: Vec<LineItem>,
-        mode: String,
-        ui_mode: UiMode,
-        return_url: Option<String>,
         success_url: Option<String>,
         cancel_url: Option<String>,
     ) -> Self {
         Self {
-            customer,
-            customer_email,
             line_items,
-            mode,
-            ui_mode,
-            return_url,
             success_url,
             cancel_url,
         }
-    }
-}
-impl TryFrom<NewCheckoutSessionDto> for CheckoutSession {
-    type Error = Error;
-    fn try_from(dto: NewCheckoutSessionDto) -> Result<Self> {
-        Ok(CheckoutSession::new(
-            dto.customer,
-            dto.customer_email,
-            dto.line_items,
-            "subscription".to_string(),
-            UiMode::Hosted,
-            dto.return_url,
-            dto.success_url,
-            dto.cancel_url,
-        ))
     }
 }
 
@@ -139,17 +52,19 @@ impl TryFrom<NewCheckoutSessionDto> for CheckoutSession {
 //*******************************************//
 #[derive(Debug, Deserialize)]
 pub struct NewPortalDto {
-    customer: String,
-    return_url: String,
+    pub return_url: String,
 }
-impl NewPortalDto {
-    pub fn new(customer: String, return_url: String) -> Self {
-        Self { customer, return_url }
-    }
+
+
+//*****************************************//
+//*************** SessionDto **************//
+//*****************************************//
+#[derive(Debug, Serialize)]
+pub struct SessionDto {
+    url: String,
 }
-impl TryFrom<NewPortalDto> for CustomerPortalSession {
-    type Error = Error;
-    fn try_from(dto: NewPortalDto) -> Result<Self> {
-        Ok(CustomerPortalSession::new(dto.customer, dto.return_url))
+impl SessionDto {
+    pub fn new(url: String) -> Self {
+        Self { url }
     }
 }

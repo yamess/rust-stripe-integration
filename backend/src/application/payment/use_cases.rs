@@ -1,14 +1,11 @@
-use std::cmp::PartialEq;
-use std::str::FromStr;
-use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, NewPriceDto, NewProductDto, PriceSearchQuery};
+use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto,SessionDto};
 use crate::application::payment::service::PaymentService;
+use crate::application::user::dtos::UserDto;
 use crate::domain::payment::client::PaymentClient;
-use crate::domain::payment::entities::checkout::{CheckoutSession, CheckoutSessionResponse};
+use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
-use crate::domain::payment::entities::product::Product;
-use crate::domain::payment::entities::product_price::ProductPrice;
-use crate::domain::plans::value_objects::currency::Currency;
+use crate::domain::user::entities::User;
 use crate::prelude::*;
 
 //************************************************//
@@ -47,92 +44,6 @@ impl <C: PaymentClient> GetCustomerUseCase<C> {
     }
 }
 
-
-//*******************************************************//
-//            Create Product Use Cases                   //
-//*******************************************************//
-#[derive(Clone)]
-pub struct CreateProductUseCase<C> {
-    service: PaymentService<C>,
-}
-impl <C: PaymentClient> CreateProductUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, new_product: NewProductDto) -> Result<Product> {
-        let result = self.service.get_product(&new_product.name).await;
-        match result {
-            Ok(product) => Ok(product),
-            Err(Error::NotFound(_)) => self.service.create_product(new_product).await,
-            Err(e) => Err(e),
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct GetProductUseCase<C> {
-    service: PaymentService<C>,
-}
-impl <C: PaymentClient> GetProductUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, name: &str) -> Result<Product> {
-        self.service.get_product(name).await
-    }
-}
-
-
-//*******************************************************//
-//              Create Price Use Cases                   //
-//*******************************************************//
-#[derive(Clone)]
-pub struct CreatePriceUseCase<C> {
-    service: PaymentService<C>,
-}
-
-impl <C: PaymentClient> CreatePriceUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, new_price: NewPriceDto) -> Result<ProductPrice> {
-        let result = self.service.search_prices(
-            &new_price.currency,
-            &new_price.product,
-            true
-        )
-            .await?
-            .into_iter()
-            .find(|price| {
-                price.unit_amount() == new_price.unit_amount
-                    && price.recurring().trial_period_days == new_price.recurring.trial_period_days
-                    && price.recurring().interval == new_price.recurring.interval
-                    && price.recurring().interval_count == new_price.recurring.interval_count
-                });
-        if let Some(price) = result {
-            return Ok(price);
-        }
-        self.service.create_price(new_price).await
-    }
-}
-
-pub struct SearchPricesUseCase<C> {
-    service: PaymentService<C>,
-}
-impl <C: PaymentClient> SearchPricesUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, query: PriceSearchQuery) -> Result<Vec<ProductPrice>> {
-        self.service.search_prices(&query.currency, &query.product, query.active).await
-    }
-}
-
-
 //*******************************************************//
 //              Create Checkout Use Cases                //
 //*******************************************************//
@@ -145,8 +56,37 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
         Self { service }
     }
 
-    pub async fn execute(&self, new_checkout: NewCheckoutSessionDto) -> Result<CheckoutSessionResponse> {
-        self.service.create_checkout_session(new_checkout).await
+    pub async fn execute(
+        &self, user: UserDto, new_checkout: NewCheckoutSessionDto
+    ) -> Result<SessionDto> {
+        let user = User::try_from(&user)?;
+        match user.stripe_customer_id() {
+            None => {
+                let new_customer = NewCustomerDto {
+                    email: user.email().to_string(),
+                    name: user.profile().full_name(),
+                };
+                let customer: Customer = self.service.create_customer(new_customer).await?;
+                let checkout_session = CheckoutSession::new(
+                    customer.id().to_string(),
+                    new_checkout.line_items,
+                    new_checkout.success_url,
+                    new_checkout.cancel_url,
+                );
+                let session = self.service.create_checkout_session(checkout_session).await?;
+                Ok(session)
+            },
+            Some(id) =>{
+                let checkout_session = CheckoutSession::new(
+                    id.to_string(),
+                    new_checkout.line_items,
+                    new_checkout.success_url,
+                    new_checkout.cancel_url,
+                );
+                let session = self.service.create_checkout_session(checkout_session).await?;
+                Ok(session)
+            }
+        }
     }
 }
 
@@ -159,7 +99,20 @@ impl <C: PaymentClient> CreatePortalSessionUseCase<C> {
         Self { service }
     }
 
-    pub async fn execute(&self, new_portal: NewPortalDto) -> Result<CustomerPortalSession> {
-        self.service.create_portal_session(new_portal).await
+    pub async fn execute(&self, user: UserDto, new_portal: NewPortalDto) -> Result<SessionDto> {
+        let user = User::try_from(&user)?;
+        match user.stripe_customer_id() {
+            None => {
+                tracing::error!("User does not have a stripe customer id");
+                Err(Error::BadRequest("User does not have a stripe customer id".to_string()))
+            },
+            Some(id) => {
+                let portal = CustomerPortalSession::new(
+                    id.to_string(),
+                    new_portal.return_url,
+                );
+                self.service.create_portal_session(portal).await
+            }
+        }
     }
 }

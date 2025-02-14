@@ -5,14 +5,13 @@ table! {
         id -> Uuid,
         email -> Varchar,
         firebase_id -> Varchar,
-        stripe_customer_id -> Varchar,
+        stripe_customer_id -> Nullable<Varchar>,
         status -> Varchar,
         role -> Varchar,
         created_at -> Timestamptz,
         updated_at -> Nullable<Timestamptz>,
     }
 }
-
 
 table! {
     profiles (id) {
@@ -28,33 +27,11 @@ table! {
 }
 
 table! {
-    plans (id) {
-        id -> Int4,
-        name -> Varchar,
-        description -> Nullable<Varchar>,
-        stripe_product_id -> Varchar,
-    }
-}
-
-table! {
-    rates (id) {
-        id -> Int4,
-        stripe_price_id -> Varchar,
-        plan_id -> Int4,
-        currency -> Varchar,
-        amount -> Numeric,
-        billing_cycle -> Varchar,
-        active -> Bool,
-        created_at -> Timestamptz,
-        updated_at -> Nullable<Timestamptz>,
-    }
-}
-
-table! {
     subscriptions (id) {
         id -> Int4,
         user_id -> Uuid,
-        rate_id -> Int4,
+        stripe_customer_id -> Varchar,
+        stripe_price_id -> Varchar,
         stripe_subscription_id -> Varchar,
         status -> Varchar,
         current_period_end -> Nullable<Timestamptz>,
@@ -65,14 +42,10 @@ table! {
 }
 
 joinable!(profiles -> users (user_id));
-joinable!(rates -> plans (plan_id));
-joinable!(subscriptions -> rates (rate_id));
 joinable!(subscriptions -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     users,
     profiles,
-    plans,
-    rates
     subscriptions,
 );

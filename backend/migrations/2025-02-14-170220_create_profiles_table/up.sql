@@ -7,8 +7,9 @@ CREATE TABLE "profiles"(
 	"last_name" VARCHAR,
 	"phone" VARCHAR,
 	"photo_url" VARCHAR,
-	"created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	"created_at" TIMESTAMPTZ NOT NULL,
 	"updated_at" TIMESTAMPTZ,
 	FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE
 );
+CREATE INDEX "profiles_user_id_index" ON "profiles"("user_id");
 
