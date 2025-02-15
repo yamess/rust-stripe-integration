@@ -42,6 +42,7 @@ impl PaymentClient for StripePaymentClient {
        let response = self.http.post(&url)
            .basic_auth(&self.secret_key, Some(""))
            .headers(self.headers.clone())
+           .header("Idempotency-Key", customer.email())
            .form(&customer)
            .send()
            .await?;
@@ -52,6 +53,7 @@ impl PaymentClient for StripePaymentClient {
                tracing::error!("Failed to create customer: {:?}", e);
                Error::DeserializationError("Failed to create customer".to_string())
            })?;
+
            tracing::info!("Created customer: {:?}", customer);
            Ok(customer)
        } else {

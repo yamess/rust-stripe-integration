@@ -5,10 +5,10 @@ pub struct Customer {
     #[serde(skip_serializing)]
     id: String,
     email: String,
-    name: String
+    name: Option<String>,
 }
 impl Customer {
-    pub fn new(email: String, name: String) -> Self {
+    pub fn new(email: String, name: Option<String>) -> Self {
         Self {
             id: "".to_string(),
             email,
@@ -21,14 +21,16 @@ impl Customer {
     pub fn email(&self) -> String {
         self.email.clone()
     }
-    pub fn name(&self) -> String {
-        self.name.clone()
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
     pub fn update(&mut self, email: Option<String>, name: Option<String>) {
         self.email = email.unwrap_or_else(|| self.email.clone());
-        self.name = name.unwrap_or_else(|| self.name.clone());
+        if let Some(name) = name {
+            self.name = Some(name);
+        }
     }
-    pub fn construct(id: String, email: String, name: String) -> Self {
+    pub fn construct(id: String, email: String, name: Option<String>) -> Self {
         Self {
             id,
             email,

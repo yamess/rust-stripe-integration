@@ -10,10 +10,10 @@ use crate::prelude::*;
 #[derive(Debug, Deserialize)]
 pub struct NewCustomerDto {
     pub email: String,
-    pub name: String
+    pub name: Option<String>
 }
 impl NewCustomerDto {
-    pub fn new(email: String, name: String) -> Self {
+    pub fn new(email: String, name: Option<String>) -> Self {
         Self { email, name }
     }
 }

@@ -163,11 +163,15 @@ impl Profile {
         self.updated_at
     }
 
-    pub fn full_name(&self) -> String {
-        let first_name = self.first_name().unwrap_or("");
-        let last_name = self.last_name().unwrap_or("");
-        let full_name = format!("{} {}", first_name, last_name);
-        full_name.trim().to_string()
+    pub fn full_name(&self) -> Option<String> {
+        match (&self.first_name, &self.last_name) {
+            (Some(first_name), Some(last_name)) => {
+                Some(format!("{} {}", first_name, last_name))
+            },
+            (Some(first_name), None) => Some(first_name.to_string()),
+            (None, Some(last_name)) => Some(last_name.to_string()),
+            _ => None,
+        }
     }
     pub fn update(
         &mut self,

@@ -8,42 +8,42 @@ use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
 
-//************************************************//
-//            Create Customer Use Cases                   //
-//************************************************//
-#[derive(Clone)]
-pub struct CreateCustomerUseCase<C> {
-    service: PaymentService<C>,
-}
-impl <C: PaymentClient> CreateCustomerUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, new_customer: NewCustomerDto) -> Result<Customer> {
-        let result = self.service.get_customer(&new_customer.email).await;
-        match result {
-            Ok(customer) => Ok(customer),
-            Err(Error::NotFound(_)) => self.service.create_customer(new_customer).await,
-            Err(e) => Err(e),
-        }
-
-    }
-}
-
-pub struct GetCustomerUseCase<C> {
-    service: PaymentService<C>,
-}
-impl <C: PaymentClient> GetCustomerUseCase<C> {
-    pub fn new(service: PaymentService<C>) -> Self {
-        Self { service }
-    }
-
-    pub async fn execute(&self, email: &str) -> Result<Customer> {
-        self.service.get_customer(email).await
-    }
-}
-
+// //************************************************//
+// //            Create Customer Use Cases                   //
+// //************************************************//
+// #[derive(Clone)]
+// pub struct CreateCustomerUseCase<C> {
+//     service: PaymentService<C>,
+// }
+// impl <C: PaymentClient> CreateCustomerUseCase<C> {
+//     pub fn new(service: PaymentService<C>) -> Self {
+//         Self { service }
+//     }
+//
+//     pub async fn execute(&self, new_customer: NewCustomerDto) -> Result<Customer> {
+//         let result = self.service.get_customer(&new_customer.email).await;
+//         match result {
+//             Ok(customer) => Ok(customer),
+//             Err(Error::NotFound(_)) => self.service.create_customer(new_customer).await,
+//             Err(e) => Err(e),
+//         }
+//
+//     }
+// }
+//
+// pub struct GetCustomerUseCase<C> {
+//     service: PaymentService<C>,
+// }
+// impl <C: PaymentClient> GetCustomerUseCase<C> {
+//     pub fn new(service: PaymentService<C>) -> Self {
+//         Self { service }
+//     }
+//
+//     pub async fn execute(&self, email: &str) -> Result<Customer> {
+//         self.service.get_customer(email).await
+//     }
+// }
+//
 //*******************************************************//
 //              Create Checkout Use Cases                //
 //*******************************************************//

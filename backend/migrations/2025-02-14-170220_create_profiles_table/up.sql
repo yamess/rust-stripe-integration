@@ -7,7 +7,7 @@ CREATE TABLE "profiles"(
 	"last_name" VARCHAR,
 	"phone" VARCHAR,
 	"photo_url" VARCHAR,
-	"created_at" TIMESTAMPTZ NOT NULL,
+	"created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	"updated_at" TIMESTAMPTZ,
 	FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE
 );

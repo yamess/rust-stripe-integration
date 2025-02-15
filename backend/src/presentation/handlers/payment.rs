@@ -1,37 +1,36 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto};
-use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreateCustomerUseCase,
-                                             CreatePortalSessionUseCase,  GetCustomerUseCase};
+use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreatePortalSessionUseCase};
 use crate::application::user::extractor::UserExtractor;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 
-
-#[post("/customers")]
-pub async fn create_customer(
-    state: web::Data<AppState>, new_customer: web::Json<NewCustomerDto>
-) -> Result<impl Responder> {
-    let service = state.payment_service.clone();
-    let use_case = CreateCustomerUseCase::new(service);
-    let new_customer = new_customer.into_inner();
-    match use_case.execute(new_customer).await {
-        Ok(customer) => Ok(HttpResponse::Created().json(customer)),
-        Err(e) => Err(e)
-    }
-}
-
-#[get("/customers/{email}")]
-pub async fn get_customer(
-    state: web::Data<AppState>, email: web::Path<String>
-) -> Result<impl Responder> {
-    let service = state.payment_service.clone();
-    let use_case = GetCustomerUseCase::new(service);
-    let email = email.into_inner();
-    match use_case.execute(&email).await {
-        Ok(customer) => Ok(HttpResponse::Ok().json(customer)),
-        Err(e) => Err(e)
-    }
-}
+//
+// #[post("/customers")]
+// pub async fn create_customer(
+//     state: web::Data<AppState>, new_customer: web::Json<NewCustomerDto>
+// ) -> Result<impl Responder> {
+//     let service = state.payment_service.clone();
+//     let use_case = CreateCustomerUseCase::new(service);
+//     let new_customer = new_customer.into_inner();
+//     match use_case.execute(new_customer).await {
+//         Ok(customer) => Ok(HttpResponse::Created().json(customer)),
+//         Err(e) => Err(e)
+//     }
+// }
+//
+// #[get("/customers/{email}")]
+// pub async fn get_customer(
+//     state: web::Data<AppState>, email: web::Path<String>
+// ) -> Result<impl Responder> {
+//     let service = state.payment_service.clone();
+//     let use_case = GetCustomerUseCase::new(service);
+//     let email = email.into_inner();
+//     match use_case.execute(&email).await {
+//         Ok(customer) => Ok(HttpResponse::Ok().json(customer)),
+//         Err(e) => Err(e)
+//     }
+// }
 
 #[post("/checkout/sessions")]
 pub async fn create_checkout_session(
