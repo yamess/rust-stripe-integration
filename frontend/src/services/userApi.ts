@@ -24,7 +24,7 @@ export const userApi = createApi({
     endpoints: (builder) => ({
         registerUser: builder.mutation({
             query: (data: User) => ({
-                url: '/users',
+                url: '/v1/users',
                 method: 'POST',
                 body: data,
                 headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`}
@@ -33,7 +33,7 @@ export const userApi = createApi({
         }),
         login: builder.query<User, string>({
             query: (token) => ({
-                url: '/auth/login',
+                url: '/v1/login',
                 method: 'POST',
                 headers: {"Authorization": `Bearer ${token}`}
             }),

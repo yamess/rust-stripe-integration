@@ -2,9 +2,9 @@ import Navbar from "@/components/Navbar";
 
 const HomePage = () => {
     return (
-        <div className={"flex flex-col h-screen"}>
+        <div>
             <Navbar />
-            <main className={"h-max items-center justify-between flex-grow"}>Main</main>
+            <main className={"text-center h-max items-center justify-between flex-grow mx-auto"}>Main</main>
         </div>
 
     );

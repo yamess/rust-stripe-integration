@@ -2,14 +2,14 @@ use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use uuid::Uuid;
 use crate::application::user::dtos::{UpdateUserDto, UserDto};
 use crate::application::user::extractor::{Authenticate, UserExtractor};
-use crate::application::user::use_cases::{DeleteUserUseCase, RegisterNewUserUseCase, UpdateUserUseCase};
+use crate::application::user::use_cases::{DeleteUserUseCase, LoginUseCase, UpdateUserUseCase};
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 
-#[post("/register")]
-pub async fn register(auth: Authenticate, state: web::Data<AppState>) -> Result<impl Responder> {
+#[post("/login")]
+pub async fn login(auth: Authenticate, state: web::Data<AppState>) -> Result<impl Responder> {
     let service = state.user_service.clone();
-    let use_case = RegisterNewUserUseCase::new(service);
+    let use_case = LoginUseCase::new(service);
     match use_case.execute(&auth.0).await {
         Ok(user) => {
             tracing::info!("New user created: {}", user.id);
