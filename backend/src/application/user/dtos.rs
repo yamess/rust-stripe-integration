@@ -71,11 +71,30 @@ impl TryFrom<&UserDto> for User {
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserDto {
     pub stripe_customer_id: Option<String>,
-    pub status: UserStatus,
+    pub status: Option<UserStatus>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub phone: Option<String>,
     pub photo_url: Option<String>,
+}
+impl UpdateUserDto {
+    pub fn new(
+        stripe_customer_id: Option<String>,
+        status: Option<UserStatus>,
+        first_name: Option<String>,
+        last_name: Option<String>,
+        phone: Option<String>,
+        photo_url: Option<String>,
+    ) -> Self {
+        Self {
+            stripe_customer_id,
+            status,
+            first_name,
+            last_name,
+            phone,
+            photo_url,
+        }
+    }
 }
 
 

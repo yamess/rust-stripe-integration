@@ -42,7 +42,7 @@ impl PaymentClient for StripePaymentClient {
        let response = self.http.post(&url)
            .basic_auth(&self.secret_key, Some(""))
            .headers(self.headers.clone())
-           .header("Idempotency-Key", customer.email())
+//           .header("Idempotency-Key", customer.email())
            .form(&customer)
            .send()
            .await?;

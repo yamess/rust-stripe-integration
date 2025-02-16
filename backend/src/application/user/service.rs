@@ -37,11 +37,11 @@ impl<U: UserRepository> UserService<U> {
         }
     }
 
-    pub async fn get_by_email(&self, email: &str) -> Result<UserDto> {
+    pub async fn get_by_email(&self, email: &str) -> Result<User> {
         let user = self.user_repo.find_by_email(email).await;
         match user {
             Ok(Some(user)) => {
-                let user = UserDto::try_from(&user)?;
+                // let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
@@ -52,11 +52,11 @@ impl<U: UserRepository> UserService<U> {
         }
     }
 
-    pub async fn get_by_auth_provider_id(&self, auth_id: &str) -> Result<UserDto> {
+    pub async fn get_by_auth_provider_id(&self, auth_id: &str) -> Result<User> {
         let user = self.user_repo.find_by_firebase_id(auth_id).await;
         match user {
             Ok(Some(user)) => {
-                let user = UserDto::try_from(&user)?;
+                // let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
@@ -67,11 +67,11 @@ impl<U: UserRepository> UserService<U> {
         }
     }
 
-    pub async fn get_by_payment_provider_id(&self, pay_provider_id: &str) -> Result<UserDto> {
+    pub async fn get_by_payment_provider_id(&self, pay_provider_id: &str) -> Result<User> {
         let user = self.user_repo.find_by_strip_customer_id(pay_provider_id).await;
         match user {
             Ok(Some(user)) => {
-                let user = UserDto::try_from(&user)?;
+                // let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
@@ -82,13 +82,14 @@ impl<U: UserRepository> UserService<U> {
         }
     }
 
-    pub async fn update(&self, updates: UpdateUserDto, user: &mut User) -> Result<UserDto> {
+    pub async fn update(&self, updates: UpdateUserDto, user: &User) -> Result<User> {
+        let mut user = user.clone();
         user.update_profile(updates.first_name, updates.last_name, updates.phone, updates.photo_url);
         user.update(updates.status, user.role(), updates.stripe_customer_id);
 
-        let user = self.user_repo.update(user).await?;
+        let user = self.user_repo.update(&user).await?;
 
-        let user = UserDto::try_from(&user)?;
+        // let user = UserDto::try_from(&user)?;
         Ok(user)
     }
 

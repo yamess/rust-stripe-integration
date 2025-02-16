@@ -1,7 +1,11 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
+use serde_json::Value;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto};
+use crate::application::payment::event_use_cases::UpdateUserEvent;
 use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreatePortalSessionUseCase};
 use crate::application::user::extractor::UserExtractor;
+use crate::application::user::use_cases::UpdateUserUseCase;
+use crate::domain::payment::entities::customer::Customer;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 
@@ -62,4 +66,25 @@ pub async fn create_portal_session(
         Ok(portal) => Ok(HttpResponse::Created().json(portal)),
         Err(e) => Err(e)
     }
+}
+
+
+#[post("/webhook")]
+pub async fn payment_webhook(
+    state: web::Data<AppState>,
+    body: web::Json<Value>
+) -> Result<impl Responder> {
+    tracing::info!("Payment Webhook: {}", body);
+    let event_type = body["type"].as_str().ok_or(Error::BadRequest("Invalid event type".to_string()))?;
+    match event_type {
+        "customer.created" => {
+            let customer: Customer = serde_json::from_value(body["data"]["object"].clone()).unwrap();
+            let use_case = UpdateUserEvent::new(state.user_service.clone());
+            use_case.execute(customer).await?;
+        },
+        _ => {
+            tracing::info!("Unknown event type: {}", body);
+        }
+    }
+    Ok(HttpResponse::Ok().finish())
 }

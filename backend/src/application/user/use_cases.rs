@@ -20,7 +20,7 @@ impl<U: UserRepository> LoginUseCase<U> {
 
     pub async fn execute(&self, auth: &AuthProviderData) -> Result<UserDto> {
         match self.user_service.get_by_email(&auth.email).await {
-            Ok(user) => Ok(user),
+            Ok(user) => UserDto::try_from(&user),
             Err(Error::NotFound(_)) => {
                 let user = User::new(auth.email.clone(), auth.id.to_string(), None);
                 let user = self.user_service.register(&user).await?;
@@ -57,7 +57,7 @@ impl<U: UserRepository> GetUserByAuthProviderIdUseCase<U> {
 
     pub async fn execute(&self, auth_id: &str) -> Result<UserDto> {
         let user = self.user_service.get_by_auth_provider_id(auth_id).await?;
-        Ok(user)
+        UserDto::try_from(&user)
     }
 }
 
@@ -72,7 +72,7 @@ impl <U: UserRepository> GetUserByPaymentProviderIdUseCase<U> {
 
     pub async fn execute(&self, payment_id: &str) -> Result<UserDto> {
         let user = self.user_service.get_by_payment_provider_id(payment_id).await?;
-        Ok(user)
+        UserDto::try_from(&user)
     }
 }
 
@@ -87,7 +87,7 @@ impl<U: UserRepository> GetUserByEmailUseCase<U> {
 
     pub async fn execute(&self, email: &str) -> Result<UserDto> {
         let user = self.user_service.get_by_email(email).await?;
-        Ok(user)
+        UserDto::try_from(&user)
     }
 }
 
@@ -103,7 +103,7 @@ impl<U: UserRepository> UpdateUserUseCase<U> {
     pub async fn execute(&self, updates: UpdateUserDto, user: &UserDto) -> Result<UserDto> {
         let mut user = User::try_from(user)?;
         let user = self.user_service.update(updates, &mut user).await?;
-        Ok(user)
+        UserDto::try_from(&user)
     }
 }
 
@@ -134,7 +134,7 @@ impl<U: UserRepository, A: Authenticator> ExtractUserUseCase<U, A> {
     pub async fn execute(&self, token: &str) -> Result<UserDto> {
         let auth_data = self.authenticator.authenticate(token).await?;
         let user = self.user_service.get_by_auth_provider_id(&auth_data.id).await?;
-        Ok(user)
+        UserDto::try_from(&user)
     }
 }
 

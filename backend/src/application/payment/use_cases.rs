@@ -62,21 +62,29 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
         let user = User::try_from(&user)?;
         match user.stripe_customer_id() {
             None => {
-                let new_customer = NewCustomerDto {
-                    email: user.email().to_string(),
-                    name: user.profile().full_name(),
+                let customer = match self.service.get_customer(user.email()).await {
+                    Err(Error::NotFound(_)) => {
+                        let new_customer = NewCustomerDto {
+                            email: user.email().to_string(),
+                            name: user.profile().full_name(),
+                        };
+                        self.service.create_customer(new_customer).await?
+                    },
+                    Err(_) => return Err(Error::BadRequest("Failed to create customer".to_string())),
+                    Ok(customer) => customer,
                 };
-                let customer: Customer = self.service.create_customer(new_customer).await?;
+
                 let checkout_session = CheckoutSession::new(
                     customer.id().to_string(),
                     new_checkout.line_items,
                     new_checkout.success_url,
                     new_checkout.cancel_url,
                 );
+                tracing::info!("Creating checkout session: {:?}", &checkout_session);
                 let session = self.service.create_checkout_session(checkout_session).await?;
                 Ok(session)
             },
-            Some(id) =>{
+            Some(id) => {
                 let checkout_session = CheckoutSession::new(
                     id.to_string(),
                     new_checkout.line_items,

@@ -72,8 +72,12 @@ impl User {
         &self.profile
     }
 
-    pub fn update(&mut self, status: UserStatus, role: Role, stripe_customer_id: Option<String>) {
-        self.status = status;
+    pub fn update(
+        &mut self, status: Option<UserStatus>, role: Role, stripe_customer_id: Option<String>
+    ) {
+        if let Some(status) = status {
+            self.status = status;
+        }
         self.role = role;
         self.updated_at = Some(Utc::now());
         if let Some(stripe_customer_id) = stripe_customer_id {
