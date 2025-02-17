@@ -44,7 +44,7 @@ impl UserRepository for PostgresUserRepository {
             Ok((user, profile))
         }).map_err(|e| match e {
             diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) => {
-                Error::UserAlreadyExists
+                Error::RecordAlreadyExists
             },
             other => Error::Database(other.to_string()),
         })?;

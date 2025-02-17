@@ -47,8 +47,8 @@ pub enum Error {
 
     #[error("Bad request. Cause: {0}")]
     BadRequest(String),
-    #[error("User already exists")]
-    UserAlreadyExists,
+    #[error("Record already exists")]
+    RecordAlreadyExists,
 
     #[error("Invalid currency. Cause: {0}")]
     InvalidCurrency(String),

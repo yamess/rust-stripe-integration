@@ -46,6 +46,14 @@ impl Subscription {
         &self.user_id
     }
 
+    pub fn stripe_customer_id(&self) -> &str {
+        &self.stripe_customer_id
+    }
+
+    pub fn stripe_price_id(&self) -> &str {
+        &self.stripe_price_id
+    }
+
     pub fn stripe_subscription_id(&self) -> &str {
         &self.stripe_subscription_id
     }
@@ -72,28 +80,27 @@ impl Subscription {
 
     pub fn update(
         &mut self,
-        status: SubscriptionStatus,
+        stripe_price_id: Option<String>,
+        stripe_subscription_id: Option<String>,
+        status: Option<SubscriptionStatus>,
         current_period_end: Option<DateTime<Utc>>,
         canceled_at: Option<DateTime<Utc>>,
     ) {
-        self.status = status;
+        if let Some(status) = status {
+            self.status = status;
+        }
+        if let Some(stripe_price_id) = stripe_price_id {
+            self.stripe_price_id = stripe_price_id;
+        }
+        if let Some(stripe_subscription_id) = stripe_subscription_id {
+            self.stripe_subscription_id = stripe_subscription_id;
+        }
         if let Some(current_period_end) = current_period_end {
             self.current_period_end = Some(current_period_end);
         }
         if let Some(canceled_at) = canceled_at {
             self.canceled_at = Some(canceled_at);
         }
-        self.updated_at = Some(Utc::now());
-    }
-
-    pub fn cancel(&mut self) {
-        self.status = SubscriptionStatus::Canceled;
-        self.canceled_at = Some(Utc::now());
-        self.updated_at = Some(Utc::now());
-    }
-
-    pub fn reactivate(&mut self) {
-        self.status = SubscriptionStatus::Active;
         self.updated_at = Some(Utc::now());
     }
 
@@ -112,10 +119,10 @@ impl Subscription {
     pub fn construct(
         id: i32,
         user_id: Uuid,
-        plan_id: i32,
+        stripe_customer_id: String,
+        stripe_price_id: String,
         stripe_subscription_id: String,
         status: SubscriptionStatus,
-        current_period_start: DateTime<Utc>,
         current_period_end: Option<DateTime<Utc>>,
         canceled_at: Option<DateTime<Utc>>,
         created_at: DateTime<Utc>,
@@ -124,10 +131,10 @@ impl Subscription {
         Self {
             id,
             user_id,
-            plan_id,
+            stripe_customer_id,
+            stripe_price_id,
             stripe_subscription_id,
             status,
-            current_period_start,
             current_period_end,
             canceled_at,
             created_at,
