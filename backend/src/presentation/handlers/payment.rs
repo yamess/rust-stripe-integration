@@ -82,6 +82,12 @@ pub async fn payment_webhook(
             let use_case = UpdateUserEvent::new(state.user_service.clone());
             use_case.execute(customer).await?;
         },
+        "customer.subscription.created" => {
+            let data = body["data"]["object"].clone();
+        }
+        "checkout.sessions.completed" => {
+            let data = body["data"]["object"].clone();
+        },
         _ => {
             tracing::info!("Unknown event type: {}", body);
         }
