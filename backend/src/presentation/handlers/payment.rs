@@ -3,6 +3,8 @@ use serde_json::Value;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto};
 use crate::application::payment::event_use_cases::UpdateUserEvent;
 use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreatePortalSessionUseCase};
+use crate::application::subscription::commands::NewSubscriptionCommand;
+use crate::application::subscription::dtos::NewSubscriptionDto;
 use crate::application::user::extractor::UserExtractor;
 use crate::application::user::use_cases::UpdateUserUseCase;
 use crate::domain::payment::entities::customer::Customer;
@@ -83,7 +85,13 @@ pub async fn payment_webhook(
             use_case.execute(customer).await?;
         },
         "customer.subscription.created" => {
-            let data = body["data"]["object"].clone();
+            let data: NewSubscriptionDto = serde_json::from_value(body["data"]["object"].clone())
+                .map_err(|e| Error::BadRequest("Bad request".to_string()))?;
+            let command = NewSubscriptionCommand::new(
+                state.subscription_service.clone(),
+                state.user_service.clone()
+            );
+            command.execute(data).await?
         }
         "checkout.sessions.completed" => {
             let data = body["data"]["object"].clone();

@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 
 #[derive(Debug, Clone)]
-pub struct UserService<U: UserRepository> {
+pub struct UserService<U> {
     user_repo: Arc<U>,
 }
 impl<U: UserRepository> UserService<U> {
