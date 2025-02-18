@@ -112,10 +112,6 @@ impl Subscription {
         self.status == SubscriptionStatus::Canceled
     }
 
-    pub fn is_trialing(&self) -> bool {
-        self.status == SubscriptionStatus::Trialing
-    }
-
     pub fn construct(
         id: i32,
         user_id: Uuid,

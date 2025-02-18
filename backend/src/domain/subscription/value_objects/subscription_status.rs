@@ -7,12 +7,9 @@ use crate::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SubscriptionStatus {
     Active,
-    Canceled,
-    Incomplete,
-    IncompleteExpired,
     PastDue,
-    Trialing,
-    Unpaid,
+    Canceled,
+    Unknown,
 }
 impl FromStr for SubscriptionStatus {
     type Err = Error;
@@ -20,12 +17,8 @@ impl FromStr for SubscriptionStatus {
         match s.to_lowercase().as_str() {
             "active" => Ok(Self::Active),
             "canceled" => Ok(Self::Canceled),
-            "incomplete" => Ok(Self::Incomplete),
-            "incomplete_expired" => Ok(Self::IncompleteExpired),
             "past_due" => Ok(Self::PastDue),
-            "trialing" => Ok(Self::Trialing),
-            "unpaid" => Ok(Self::Unpaid),
-            _ => Err(Error::InvalidSubscriptionStatus(s.to_string())),
+            _ => Ok(Self::Unknown),
         }
     }
 }
@@ -35,11 +28,8 @@ impl Display for SubscriptionStatus {
         match self {
             Self::Active => write!(f, "active"),
             Self::Canceled => write!(f, "canceled"),
-            Self::Incomplete => write!(f, "incomplete"),
-            Self::IncompleteExpired => write!(f, "incomplete_expired"),
             Self::PastDue => write!(f, "past_due"),
-            Self::Trialing => write!(f, "trialing"),
-            Self::Unpaid => write!(f, "unpaid"),
+            Self::Unknown => write!(f, "unknown"),
         }
     }
 }

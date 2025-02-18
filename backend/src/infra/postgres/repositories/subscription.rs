@@ -53,6 +53,23 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             None => Err(Error::NotFound("Subscription {} not found".to_string())),
         }
     }
+    async fn find_by_strip_subscription_id(&self, subscription_id: &str) -> Result<Subscription> {
+        let mut connection = get_connection(self.pool.clone())?;
+
+        let model = subscriptions
+            .filter(schema::subscriptions::stripe_subscription_id.eq(subscription_id))
+            .get_result::<SubscriptionModel>(&mut connection)
+            .optional()
+            .map_err(|e| Error::Database(e.to_string()))?;
+
+        match model {
+            Some(model) => {
+                let subscription = Subscription::try_from(model)?;
+                Ok(subscription)
+            },
+            None => Err(Error::NotFound("Subscription {} not found".to_string())),
+        }
+    }
     async fn find_by_user_id(&self, user_id: &Uuid) -> Result<Subscription> {
         let mut connection = get_connection(self.pool.clone())?;
 

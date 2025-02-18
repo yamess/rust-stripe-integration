@@ -23,10 +23,13 @@ impl<C: SubscriptionRepository> SubscriptionService<C> {
     pub async fn find(&self, id: i32) -> Result<Subscription> {
         self.repo.find(id).await
     }
+    pub async fn find_by_stripe_subscription_id(&self, subscription_id: &str) -> Result<Subscription> {
+        self.repo.find_by_strip_subscription_id(subscription_id).await
+    }
     pub async fn find_customer_id(&self, customer_id: &str) -> Result<Subscription> {
         self.repo.find_by_customer_id(customer_id).await
     }
-    pub async fn fin_by_user_id(&self, user_id: &Uuid) -> Result<Subscription> {
+    pub async fn find_by_user_id(&self, user_id: &Uuid) -> Result<Subscription> {
         self.repo.find_by_user_id(user_id).await
     }
     pub async fn update(&self, updates: &Subscription) -> Result<Subscription> {

@@ -3,8 +3,8 @@ use serde_json::Value;
 use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto};
 use crate::application::payment::event_use_cases::UpdateUserEvent;
 use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreatePortalSessionUseCase};
-use crate::application::subscription::commands::NewSubscriptionCommand;
-use crate::application::subscription::dtos::NewSubscriptionDto;
+use crate::application::subscription::dtos::{InvoicePaidEvent, NewSubscriptionDto, PlanObject};
+use crate::application::subscription::use_cases::{InvoicePaidUseCase, InvoicePaymentFailedUseCase};
 use crate::application::user::extractor::UserExtractor;
 use crate::application::user::use_cases::UpdateUserUseCase;
 use crate::domain::payment::entities::customer::Customer;
@@ -84,18 +84,28 @@ pub async fn payment_webhook(
             let use_case = UpdateUserEvent::new(state.user_service.clone());
             use_case.execute(customer).await?;
         },
-        "customer.subscription.created" => {
-            let data: NewSubscriptionDto = serde_json::from_value(body["data"]["object"].clone())
-                .map_err(|e| Error::BadRequest("Bad request".to_string()))?;
-            let command = NewSubscriptionCommand::new(
+        "invoice.paid" => {
+            let data = body["data"]["object"].clone();
+            let use_case = InvoicePaidUseCase::new(
                 state.subscription_service.clone(),
                 state.user_service.clone()
             );
-            command.execute(data).await?
+            use_case.execute(data).await?;
         }
-        "checkout.sessions.completed" => {
+        "invoice.payment_failed" => {
             let data = body["data"]["object"].clone();
-        },
+            let use_case = InvoicePaymentFailedUseCase::new(
+                state.subscription_service.clone(),
+                state.user_service.clone()
+            );
+            use_case.execute(data).await?;
+        }
+        "customer.subscription.updated" => {
+            todo!()
+        }
+        "customer.subscription.deleted" => {
+            todo!()
+        }
         _ => {
             tracing::info!("Unknown event type: {}", body);
         }

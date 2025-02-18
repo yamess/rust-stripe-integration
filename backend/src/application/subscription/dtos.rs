@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
+use uuid::Uuid;
 use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 use crate::schema::subscriptions::{current_period_end, stripe_subscription_id};
@@ -41,4 +42,15 @@ impl NewSubscriptionDto {
             DateTime::<Utc>::from_timestamp(self.current_period_end, 0)
         ))
     }
+}
+
+//************************************************//
+//**************  INVOICE PAID OPS  **************//
+//************************************************//
+#[derive(Debug, Clone, Deserialize)]
+pub struct InvoicePaidEvent {
+    #[serde(rename(deserialize = "subscription"))]
+    pub subscription_id: String,
+    #[serde(rename(deserialize = "customer"))]
+    pub customer_id: String,
 }
