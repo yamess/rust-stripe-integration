@@ -60,7 +60,13 @@ impl UserRepository for PostgresUserRepository {
             .filter(schema::users::id.eq(user_id))
             .get_result::<(UserModel, ProfileModel)>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("User {} not found", user_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         let result = user.map(|(user, profile)| {
             let model =
@@ -77,7 +83,13 @@ impl UserRepository for PostgresUserRepository {
             .filter(schema::users::email.eq(email))
             .get_result::<(UserModel, ProfileModel)>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("User with email {} not found", email);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         let result = user.map(|(user, profile)| {
             let model =
@@ -94,7 +106,13 @@ impl UserRepository for PostgresUserRepository {
             .filter(schema::users::firebase_id.eq(firebase_id))
             .get_result::<(UserModel, ProfileModel)>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("User with firebase id {} not found", firebase_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         let result = user.map(|(user, profile)| {
             let model =
@@ -111,8 +129,12 @@ impl UserRepository for PostgresUserRepository {
             .filter(schema::users::stripe_customer_id.eq(strip_customer_id))
             .get_result::<(UserModel, ProfileModel)>(&mut connection)
             .optional()
-            .map_err(|e| {
-                Error::Database(e.to_string())
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("User with stripe customer id {} not found", strip_customer_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
             })?;
 
         let result = user.map(|(user, profile)| {

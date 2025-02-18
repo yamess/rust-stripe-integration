@@ -43,7 +43,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .filter(schema::subscriptions::id.eq(id))
             .get_result::<SubscriptionModel>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription {} not found", id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         match model {
             Some(model) => {
@@ -60,7 +66,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .filter(schema::subscriptions::stripe_subscription_id.eq(subscription_id))
             .get_result::<SubscriptionModel>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription with stripe subscription id {} not found", subscription_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         match model {
             Some(model) => {
@@ -76,7 +88,14 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
         let models = subscriptions
             .filter(schema::subscriptions::user_id.eq(user_id))
             .get_result::<SubscriptionModel>(&mut connection)
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription with user id {} not found", user_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
+
         let subscription = Subscription::try_from(models)?;
         Ok(subscription)
     }
@@ -87,7 +106,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .filter(schema::subscriptions::stripe_customer_id.eq(customer_id))
             .get_result::<SubscriptionModel>(&mut connection)
             .optional()
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription with stripe customer id {} not found", customer_id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         match model {
             Some(model) => {
@@ -106,7 +131,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .filter(schema::subscriptions::id.eq(subscription.id()))
             .set(&model)
             .get_result::<SubscriptionModel>(&mut connection)
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription {} not found", subscription.id());
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         let subscription = Subscription::try_from(model)?;
         Ok(subscription)
@@ -118,7 +149,13 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
         diesel::delete(subscriptions)
             .filter(schema::subscriptions::id.eq(id))
             .execute(&mut connection)
-            .map_err(|e| Error::Database(e.to_string()))?;
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    let msg = format!("Subscription {} not found", id);
+                    Error::NotFound(msg)
+                },
+                other => Error::Database(other.to_string()),
+            })?;
 
         Ok(())
     }

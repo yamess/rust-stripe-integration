@@ -21,12 +21,14 @@ impl<S: SubscriptionRepository, U: UserRepository> InvoicePaidUseCase<S, U> {
         let line_data = data["lines"]["data"][0].clone();
 
         let customer_id = extract_string(&data, "customer")?;
+        let customer_email = extract_string(&data, "customer_email")?;
         let subscription_id = extract_string(&data, "subscription")?;
         let current_period_end = extract_timestamp(&line_data, "period/end")?;
         let price_id = extract_string(&line_data, "price/id")?;
         let product_id = extract_string(&line_data, "price/product")?;
 
-        let user = self.user_service.get_by_payment_provider_id(&customer_id).await?;
+        tracing::info!("InvoicePaidUseCase: customer_id: {}, subscription_id: {}, current_period_end: {}, price_id: {}, product_id: {}", customer_id, subscription_id, current_period_end, price_id, product_id);
+        let user = self.user_service.get_by_email(&customer_email).await?;
         let subscription = self.subscription_service.find_by_user_id(&user.id()).await;
         match subscription {
             Ok(mut subscription) => {
@@ -93,9 +95,10 @@ impl<S: SubscriptionRepository, U: UserRepository> SubscriptionUpdatedUseCase<S,
         Self { subscription_service, user_service }
     }
     pub async fn execute(&self, data: Value) -> Result<()> {
+        tracing::info!("SubscriptionUpdatedUseCase: data: {}", data);
         let line_data = data["lines"]["data"][0].clone();
         let customer_id = extract_string(&data, "customer")?;
-        let subscription_id = extract_string(&data, "subscription")?;
+        let subscription_id = extract_string(&data, "id")?;
         let price_id = extract_string(&line_data, "price/id")?;
 
         let user = self.user_service.get_by_payment_provider_id(&customer_id).await?;
