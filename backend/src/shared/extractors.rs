@@ -2,6 +2,11 @@ use chrono::{DateTime, Utc};
 use serde_json::Value;
 use crate::prelude::*;
 
+pub fn extract_bool(data: &Value, key: &str) -> Result<bool> {
+    data.pointer(&format!("/{}", key))
+        .and_then(|v| v.as_bool())
+        .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))
+}
 
 pub fn extract_string(data: &Value, key: &str) -> Result<String> {
         data.pointer(&format!("/{}", key))
@@ -10,6 +15,11 @@ pub fn extract_string(data: &Value, key: &str) -> Result<String> {
             .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))
     }
 
+pub fn extract_number(data: &Value, key: &str) -> Result<i64> {
+    data.pointer(&format!("/{}", key))
+        .and_then(|v| v.as_i64())
+        .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))
+}
 
 pub fn extract_timestamp(data: &Value, key: &str) -> Result<DateTime<Utc>> {
     let timestamp: i64 = data.pointer(&format!("/{}", key))
@@ -50,6 +60,26 @@ mod tests {
 
         let key = "email";
         let result = extract_string(&data, key);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_extract_number() {
+        let data = json!({
+            "amount": 100
+        });
+
+        let key = "amount";
+        let result = extrac_number(&data, key);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 100);
+
+        let data = json!({
+            "amount": "invalid"
+        });
+
+        let key = "amount";
+        let result = extrac_number(&data, key);
         assert!(result.is_err());
     }
 

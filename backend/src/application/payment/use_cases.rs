@@ -62,6 +62,7 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
         let user = User::try_from(&user)?;
         match user.stripe_customer_id() {
             None => {
+                tracing::debug!("Creating new customer for user: {}", &user.id());
                 let customer = match self.service.get_customer(user.email()).await {
                     Err(Error::NotFound(_)) => {
                         let new_customer = NewCustomerDto {
@@ -74,23 +75,26 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
                     Ok(customer) => customer,
                 };
 
+                tracing::debug!("Customer created: {:?}", &customer);
                 let checkout_session = CheckoutSession::new(
                     customer.id().to_string(),
                     new_checkout.line_items,
                     new_checkout.success_url,
                     new_checkout.cancel_url,
                 );
-                tracing::info!("Creating checkout session: {:?}", &checkout_session);
+                tracing::info!("Creating checkout session for user: {:?}", &user.id());
                 let session = self.service.create_checkout_session(checkout_session).await?;
                 Ok(session)
             },
             Some(id) => {
+                tracing::debug!("Customer already exists for user: {}", &user.id());
                 let checkout_session = CheckoutSession::new(
                     id.to_string(),
                     new_checkout.line_items,
                     new_checkout.success_url,
                     new_checkout.cancel_url,
                 );
+                tracing::info!("Creating checkout session for user: {:?}", &user.id());
                 let session = self.service.create_checkout_session(checkout_session).await?;
                 Ok(session)
             }

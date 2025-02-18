@@ -49,12 +49,10 @@ pub async fn get_user(user: UserExtractor) -> Result<impl Responder> {
     Ok(HttpResponse::Ok().json(user.0))
 }
 
-// #[get("/users/{id}")]
-// pub async fn get_user_by_id(user: UserExtractor, user_id: web::Path<Uuid>) -> Result<impl Responder> {
-//     let user_id = user_id.into_inner();
-//     if user.0.id == user_id {
-//         Ok(HttpResponse::Ok().json(user.0))
-//     } else {
-//         Err(Error::Unauthorized)
-//     }
-// }
+#[get("/users/me/subscription")]
+pub async fn get_user_subscription(user: UserExtractor, state: web::Data<AppState>) -> Result<impl Responder> {
+    let user = user.0;
+    let service = state.subscription_service.clone();
+    let subscription = service.find_by_user_id(&user.id).await?;
+    Ok(HttpResponse::Ok().json(subscription))
+}

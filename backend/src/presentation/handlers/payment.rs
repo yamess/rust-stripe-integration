@@ -79,7 +79,6 @@ pub async fn payment_webhook(
     _: SignatureVerifier
 ) -> Result<impl Responder> {
     let event_type = body["type"].as_str().ok_or(Error::BadRequest("Invalid event type".to_string()))?;
-    tracing::debug!("Received event: {}", event_type);
     match event_type {
         "customer.created" => {
             let customer: Customer = serde_json::from_value(body["data"]["object"].clone()).unwrap();

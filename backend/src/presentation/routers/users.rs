@@ -5,5 +5,6 @@ pub fn routes(cfg: &mut actix_web::web::ServiceConfig) {
         .service(users::login)
         .service(users::get_user)
         .service(users::update_user)
-        .service(users::delete_user);
+        .service(users::delete_user)
+        .service(users::get_user_subscription);
 }

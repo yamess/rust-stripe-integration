@@ -2,11 +2,8 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use uuid::Uuid;
 use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
-use crate::schema::subscriptions::{current_period_end, stripe_subscription_id};
-use crate::schema::users::stripe_customer_id;
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -26,20 +23,27 @@ pub struct NewSubscriptionDto {
     pub customer_id: String, // Customer id
     pub plan: PlanObject,
     pub status: SubscriptionStatus,
-    pub current_period_end: i64
+    pub current_period_end: i64,
+    pub cancel_at_period_end: Option<bool>,
 }
 impl NewSubscriptionDto {
     pub fn into_domain(self) -> Result<Subscription> {
-        if self.user_id.is_none() {
-            return Err(Error::BadRequest("User id is required".to_string()));
-        }
+        let user_id = self.user_id.ok_or(Error::BadRequest("User id is required".to_string()))?;
+        let has_used_trial = if self.status == SubscriptionStatus::Trialing {
+            true
+        } else {
+            false
+        };
         Ok(Subscription::new(
-            self.user_id.unwrap(),
+            user_id,
             self.customer_id,
             self.plan.price_id,
+            self.plan.product_id,
             self.subscription_id,
             self.status,
-            DateTime::<Utc>::from_timestamp(self.current_period_end, 0)
+            has_used_trial,
+            DateTime::<Utc>::from_timestamp(self.current_period_end, 0),
+            self.cancel_at_period_end.unwrap_or(false),
         ))
     }
 }
