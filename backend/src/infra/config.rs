@@ -8,6 +8,7 @@ pub struct Secrets {
     stripe_secret_key: String,
     postgres_connection_string: String,
     firebase_api_key: String,
+    stripe_webhook_secret: Option<String>,
 }
 impl Secrets {
     pub fn new<P: AsRef<Path>>(secrets_path: P) -> Self {
@@ -16,10 +17,12 @@ impl Secrets {
         let stripe_secret_key = Self::read_secret_file(&base_path.join("stripe-secret-key")).unwrap();
         let postgres_connection_string = Self::read_secret_file(&base_path.join("postgres-connection-string")).unwrap();
         let firebase_api_key = Self::read_secret_file(&base_path.join("firebase-api-key")).unwrap();
+        let stripe_webhook_secret = Self::read_secret_file(&base_path.join("stripe-webhook-secret")).ok();
         Self {
             stripe_secret_key,
             postgres_connection_string,
             firebase_api_key,
+            stripe_webhook_secret,
         }
     }
     pub fn read_secret_file(path: &Path) -> Result<String> {
@@ -38,6 +41,9 @@ impl Secrets {
     pub fn firebase_api_key(&self) -> &str {
         &self.firebase_api_key
     }
+    pub fn stripe_webhook_secret(&self) -> &str {
+        self.stripe_webhook_secret.as_ref().unwrap()
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -46,6 +52,7 @@ pub struct AppConfig {
     pub port: u16,
     pub log_level: String,
     pub cors_origin: String,
+    pub environment: String,
 }
 impl AppConfig {
     pub fn new(config_str: &str) -> Self {

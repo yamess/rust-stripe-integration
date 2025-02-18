@@ -3,11 +3,12 @@ use crate::infra::config::Config;
 use crate::infra::postgres::connection::establish_connection;
 use std::sync::Arc;
 use crate::application::payment::service::PaymentService;
-use crate::application::subscription::service::SubscriptionService;
+use crate::application::subscription::service::{SignatureService, SubscriptionService};
 use crate::infra::firebase::service::FirebaseAuthenticatorService;
 use crate::infra::postgres::repositories::subscription::PostgresSubscriptionRepository;
 use crate::infra::postgres::repositories::user::PostgresUserRepository;
 use crate::infra::stripe::payment::StripePaymentClient;
+use crate::infra::stripe::service::StripeSignatureVerificationService;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -15,7 +16,8 @@ pub struct AppState {
     pub user_service: UserService<PostgresUserRepository>,
     pub auth_service: AuthenticationService<FirebaseAuthenticatorService>,
     pub payment_service: PaymentService<StripePaymentClient>,
-    pub subscription_service: SubscriptionService<PostgresSubscriptionRepository>
+    pub subscription_service: SubscriptionService<PostgresSubscriptionRepository>,
+    pub signature_service: SignatureService<StripeSignatureVerificationService>
 }
 
 impl AppState {
@@ -39,19 +41,22 @@ impl AppState {
         let subscription_repository = Arc::new(
             PostgresSubscriptionRepository::new(db_pool.clone())
         );
+        let stripe_signature_service = Arc::new(StripeSignatureVerificationService::new(
+            config.secrets().stripe_webhook_secret()
+        ));
 
         let user_service = UserService::new(pg_user_repository);
         let auth_service = AuthenticationService::new(auth_client);
         let payment_service = PaymentService::new(payment_client);
-        let subscription_service = SubscriptionService::new(
-            subscription_repository
-        );
+        let subscription_service = SubscriptionService::new(subscription_repository);
+        let signature_service = SignatureService::new(stripe_signature_service);
         Self {
             config,
             user_service,
             auth_service,
             payment_service,
-            subscription_service
+            subscription_service,
+            signature_service
         }
     }
 }

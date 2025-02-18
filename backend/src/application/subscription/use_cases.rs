@@ -97,7 +97,6 @@ impl<S: SubscriptionRepository, U: UserRepository> SubscriptionUpdatedUseCase<S,
         let customer_id = extract_string(&data, "customer")?;
         let subscription_id = extract_string(&data, "subscription")?;
         let price_id = extract_string(&line_data, "price/id")?;
-        let product_id = extract_string(&line_data, "price/product")?;
 
         let user = self.user_service.get_by_payment_provider_id(&customer_id).await?;
         let mut subscription = self.subscription_service.find_by_user_id(&user.id()).await?;

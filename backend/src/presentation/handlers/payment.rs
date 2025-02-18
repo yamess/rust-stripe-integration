@@ -4,7 +4,8 @@ use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, Ne
 use crate::application::payment::event_use_cases::UpdateUserEvent;
 use crate::application::payment::use_cases::{CreateCheckoutSessionUseCase, CreatePortalSessionUseCase};
 use crate::application::subscription::dtos::{InvoicePaidEvent, NewSubscriptionDto, PlanObject};
-use crate::application::subscription::use_cases::{InvoicePaidUseCase, InvoicePaymentFailedUseCase};
+use crate::application::subscription::extractors::SignatureVerifier;
+use crate::application::subscription::use_cases::{InvoicePaidUseCase, InvoicePaymentFailedUseCase, SubscriptionCanceledUseCase, SubscriptionUpdatedUseCase};
 use crate::application::user::extractor::UserExtractor;
 use crate::application::user::use_cases::UpdateUserUseCase;
 use crate::domain::payment::entities::customer::Customer;
@@ -74,7 +75,8 @@ pub async fn create_portal_session(
 #[post("/webhook")]
 pub async fn payment_webhook(
     state: web::Data<AppState>,
-    body: web::Json<Value>
+    body: web::Json<Value>,
+    _: SignatureVerifier
 ) -> Result<impl Responder> {
     tracing::info!("Payment Webhook: {}", body);
     let event_type = body["type"].as_str().ok_or(Error::BadRequest("Invalid event type".to_string()))?;
@@ -101,10 +103,20 @@ pub async fn payment_webhook(
             use_case.execute(data).await?;
         }
         "customer.subscription.updated" => {
-            todo!()
+            let data = body["data"]["object"].clone();
+            let use_case = SubscriptionUpdatedUseCase::new(
+                state.subscription_service.clone(),
+                state.user_service.clone()
+            );
+            use_case.execute(data).await?;
         }
         "customer.subscription.deleted" => {
-            todo!()
+            let data = body["data"]["object"].clone();
+            let use_case = SubscriptionCanceledUseCase::new(
+                state.subscription_service.clone(),
+                state.user_service.clone()
+            );
+            use_case.execute(data).await?;
         }
         _ => {
             tracing::info!("Unknown event type: {}", body);

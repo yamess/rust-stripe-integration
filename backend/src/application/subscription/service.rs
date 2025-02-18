@@ -1,8 +1,11 @@
 use std::sync::Arc;
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
 use uuid::Uuid;
 use crate::application::subscription::dtos::NewSubscriptionDto;
 use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::repository::SubscriptionRepository;
+use crate::domain::subscription::service::SignatureVerificationService;
 use crate::prelude::*;
 
 
@@ -34,5 +37,18 @@ impl<C: SubscriptionRepository> SubscriptionService<C> {
     }
     pub async fn update(&self, updates: &Subscription) -> Result<Subscription> {
         self.repo.update(updates).await
+    }
+}
+
+#[derive(Clone)]
+pub struct SignatureService<S> {
+    client: Arc<S>
+}
+impl<S: SignatureVerificationService> SignatureService<S> {
+    pub fn new(client: Arc<S>) -> Self {
+        Self { client }
+    }
+    pub fn verify(&self, payload: &str, signature: &str) -> Result<()> {
+        self.client.verify(payload.as_bytes(), signature)
     }
 }

@@ -2,6 +2,7 @@ host = "0.0.0.0"
 port = 8080
 log_level = "debug"
 cors_origin = "http://localhost:3000"
+environment = "dev"
 
 #[stripe]
 #product_id = "prod_RlnHkRra6pwlnu"

@@ -54,7 +54,6 @@ impl FromRequest for UserExtractor {
     type Future = LocalBoxFuture<'static, Result<Self>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        tracing::info!("Extracting user from request");
         let bearer_token = req
             .headers()
             .get("Authorization")
@@ -65,8 +64,6 @@ impl FromRequest for UserExtractor {
         let app_state = req.app_data::<Data<AppState>>().cloned();
 
         Box::pin(async move {
-            tracing::debug!("Inside the Box::pin block");
-
             if let (Some(token), Some(state)) = (bearer_token, app_state) {
                 let auth_service = state.auth_service.clone();
                 let user_service = state.user_service.clone();
