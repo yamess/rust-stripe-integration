@@ -2,10 +2,7 @@ use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
 use crate::infra::constants::{CHECKOUT_MODE, TRIAL_PERIOD_DAYS, UI_MODE};
 use crate::prelude::*;
-use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
-use serde_urlencoded::Deserializer;
-use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCustomerResponse {

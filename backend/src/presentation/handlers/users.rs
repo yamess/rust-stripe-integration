@@ -1,10 +1,9 @@
-use crate::application::user::dtos::{UpdateUserDto, UserDto};
+use crate::application::user::dtos::UpdateUserDto;
 use crate::application::user::extractor::{Authenticate, UserExtractor};
 use crate::application::user::use_cases::{DeleteUserUseCase, LoginUseCase, UpdateUserUseCase};
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
 use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
-use uuid::Uuid;
 
 #[post("/login")]
 pub async fn login(auth: Authenticate, state: web::Data<AppState>) -> Result<impl Responder> {

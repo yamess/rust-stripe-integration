@@ -3,8 +3,6 @@ use crate::domain::subscription::value_objects::subscription_status::Subscriptio
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use std::collections::HashMap;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PlanObject {
@@ -31,11 +29,7 @@ impl NewSubscriptionDto {
         let user_id = self
             .user_id
             .ok_or(Error::BadRequest("User id is required".to_string()))?;
-        let has_used_trial = if self.status == SubscriptionStatus::Trialing {
-            true
-        } else {
-            false
-        };
+        let has_used_trial = self.status == SubscriptionStatus::Trialing;
         Ok(Subscription::new(
             user_id,
             self.customer_id,

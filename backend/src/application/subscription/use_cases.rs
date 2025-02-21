@@ -1,4 +1,4 @@
-use crate::application::subscription::dtos::{InvoicePaidEvent, NewSubscriptionDto, PlanObject};
+use crate::application::subscription::dtos::{NewSubscriptionDto, PlanObject};
 use crate::application::subscription::service::SubscriptionService;
 use crate::application::user::service::UserService;
 use crate::domain::subscription::entities::Subscription;
@@ -7,9 +7,7 @@ use crate::domain::subscription::value_objects::subscription_status::Subscriptio
 use crate::domain::user::repositories::UserRepository;
 use crate::prelude::*;
 use crate::shared::extractors::{extract_bool, extract_number, extract_string, extract_timestamp};
-use chrono::{DateTime, Utc};
 use serde_json::Value;
-use std::str::FromStr;
 
 pub struct InvoicePaidUseCase<S, U> {
     pub subscription_service: SubscriptionService<S>,

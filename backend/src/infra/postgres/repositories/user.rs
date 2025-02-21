@@ -75,8 +75,8 @@ impl UserRepository for PostgresUserRepository {
 
         let result = user
             .map(|(user, profile)| {
-                let model = User::try_from((user, profile));
-                model
+                
+                User::try_from((user, profile))
             })
             .transpose()?;
         Ok(result)
@@ -99,8 +99,8 @@ impl UserRepository for PostgresUserRepository {
 
         let result = user
             .map(|(user, profile)| {
-                let model = User::try_from((user, profile));
-                model
+                
+                User::try_from((user, profile))
             })
             .transpose()?;
         Ok(result)
@@ -123,8 +123,8 @@ impl UserRepository for PostgresUserRepository {
 
         let result = user
             .map(|(user, profile)| {
-                let model = User::try_from((user, profile));
-                model
+                
+                User::try_from((user, profile))
             })
             .transpose()?;
         Ok(result)
@@ -150,8 +150,8 @@ impl UserRepository for PostgresUserRepository {
 
         let result = user
             .map(|(user, profile)| {
-                let model = User::try_from((user, profile));
-                model
+                
+                User::try_from((user, profile))
             })
             .transpose()?;
         Ok(result)

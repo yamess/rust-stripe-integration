@@ -25,7 +25,7 @@ impl TryFrom<&Subscription> for CreateSubscriptionModel {
 
     fn try_from(subscription: &Subscription) -> Result<Self> {
         Ok(Self {
-            user_id: subscription.user_id().clone(),
+            user_id: *subscription.user_id(),
             stripe_customer_id: subscription.stripe_customer_id().to_string(),
             stripe_price_id: subscription.stripe_price_id().to_string(),
             stripe_product_id: subscription.stripe_product_id().to_string(),

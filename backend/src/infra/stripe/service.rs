@@ -1,6 +1,5 @@
 use crate::domain::subscription::service::SignatureVerificationService;
 use crate::prelude::{Error, Result};
-use hmac::digest::InvalidBufferSize;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -92,7 +91,7 @@ impl SignatureVerificationService for StripeSignatureVerificationService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::Error;
+    
 
     #[test]
     fn test_verify_signature() {

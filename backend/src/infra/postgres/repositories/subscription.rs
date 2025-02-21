@@ -7,7 +7,7 @@ use crate::infra::postgres::models::subscription::{
 use crate::prelude::*;
 use crate::schema;
 use crate::schema::subscriptions::dsl::subscriptions;
-use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use std::sync::Arc;
 use uuid::Uuid;
 

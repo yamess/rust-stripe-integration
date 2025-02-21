@@ -1,20 +1,18 @@
-use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto};
+use crate::application::payment::dto::{NewCheckoutSessionDto, NewPortalDto};
 use crate::application::payment::event_use_cases::UpdateUserEvent;
 use crate::application::payment::use_cases::{
     CreateCheckoutSessionUseCase, CreatePortalSessionUseCase,
 };
-use crate::application::subscription::dtos::{InvoicePaidEvent, NewSubscriptionDto, PlanObject};
 use crate::application::subscription::extractors::SignatureVerifier;
 use crate::application::subscription::use_cases::{
     InvoicePaidUseCase, InvoicePaymentFailedUseCase, SubscriptionCanceledUseCase,
     SubscriptionUpdatedUseCase,
 };
 use crate::application::user::extractor::UserExtractor;
-use crate::application::user::use_cases::UpdateUserUseCase;
 use crate::domain::payment::entities::customer::Customer;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{post, web, HttpResponse, Responder};
 use serde_json::Value;
 
 //

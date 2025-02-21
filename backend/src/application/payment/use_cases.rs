@@ -5,7 +5,6 @@ use crate::application::payment::service::PaymentService;
 use crate::application::user::dtos::UserDto;
 use crate::domain::payment::client::PaymentClient;
 use crate::domain::payment::entities::checkout::CheckoutSession;
-use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::domain::user::entities::User;
 use crate::prelude::*;

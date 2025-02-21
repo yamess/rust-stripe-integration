@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use diesel::r2d2::ConnectionManager;
-use diesel::{r2d2, PgConnection, RunQueryDsl};
+use diesel::{r2d2, PgConnection};
 use std::sync::Arc;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;

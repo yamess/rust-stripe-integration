@@ -23,7 +23,7 @@ pub struct AppState {
 
 impl AppState {
     pub fn new(config: Config) -> Self {
-        let db_pool = establish_connection(&config.secrets().postgres_connection_string());
+        let db_pool = establish_connection(config.secrets().postgres_connection_string());
 
         run_migrations(db_pool.clone()).unwrap();
 

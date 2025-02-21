@@ -1,11 +1,10 @@
 use crate::infra::cli::Args;
 use crate::infra::config::Config;
 use crate::infra::dependencies::AppState;
-use crate::infra::postgres::migrations::run_migrations;
 use crate::presentation::routers;
 use actix_cors::Cors;
 use actix_web::web::{scope, Data};
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{middleware, App, HttpServer};
 use clap::Parser;
 
 pub async fn run() -> std::io::Result<()> {

@@ -1,6 +1,5 @@
 use crate::domain::payment::entities::checkout::LineItem;
 use crate::domain::payment::entities::customer::Customer;
-use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 

@@ -1,4 +1,4 @@
-use crate::application::user::dtos::{NewUserDto, UpdateUserDto, UserDto};
+use crate::application::user::dtos::{UpdateUserDto, UserDto};
 use crate::domain::user::entities::{AuthProviderData, User};
 use crate::domain::user::repositories::UserRepository;
 use crate::domain::user::services::Authenticator;
@@ -16,7 +16,7 @@ impl<U: UserRepository> UserService<U> {
     }
 
     pub async fn register(&self, new_user: &User) -> Result<UserDto> {
-        let user = self.user_repo.save(&new_user).await?;
+        let user = self.user_repo.save(new_user).await?;
         let user = UserDto::try_from(&user)?;
         Ok(user)
     }

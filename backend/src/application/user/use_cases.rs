@@ -1,4 +1,4 @@
-use crate::application::user::dtos::{NewUserDto, UpdateUserDto, UserDto};
+use crate::application::user::dtos::{UpdateUserDto, UserDto};
 use crate::application::user::service::{AuthenticationService, UserService};
 use crate::domain::user::entities::{AuthProviderData, User};
 use crate::domain::user::repositories::UserRepository;

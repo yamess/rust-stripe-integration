@@ -1,16 +1,11 @@
 use crate::domain::payment::client::PaymentClient;
 use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
-use crate::domain::payment::entities::portal::{
-    CustomerPortalSession, CustomerPortalSessionResponse,
-};
-use crate::domain::user::entities::User;
+use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::infra::stripe::models::{CheckoutSessionForm, GetCustomerResponse};
 use crate::prelude::*;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct StripePaymentClient {

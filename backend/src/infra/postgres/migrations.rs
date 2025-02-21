@@ -1,6 +1,4 @@
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use std::error::Error;
 use std::sync::Arc;

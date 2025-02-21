@@ -1,5 +1,4 @@
 use crate::infra::dependencies::AppState;
-use crate::infra::stripe::service::StripeSignatureVerificationService;
 use crate::prelude::*;
 use actix_web::dev::Payload;
 use actix_web::web::Data;
@@ -7,7 +6,6 @@ use actix_web::{web, FromRequest, HttpMessage, HttpRequest};
 use futures_util::future::LocalBoxFuture;
 use futures_util::StreamExt;
 use serde::de::DeserializeOwned;
-use serde_json::Value;
 
 #[derive(Debug)]
 pub struct SignatureVerifier<T>(pub T);

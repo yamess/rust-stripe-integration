@@ -2,7 +2,6 @@ use crate::domain::user::entities::Profile;
 use crate::prelude::*;
 use crate::schema;
 use chrono::{DateTime, Utc};
-use diesel;
 use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use uuid::Uuid;
 

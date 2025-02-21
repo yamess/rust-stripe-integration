@@ -3,8 +3,7 @@ use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::repository::SubscriptionRepository;
 use crate::domain::subscription::service::SignatureVerificationService;
 use crate::prelude::*;
-use hmac::{Hmac, Mac};
-use sha2::Sha256;
+use hmac::Mac;
 use std::sync::Arc;
 use uuid::Uuid;
 
