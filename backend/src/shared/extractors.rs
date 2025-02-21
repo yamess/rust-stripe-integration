@@ -70,7 +70,7 @@ mod tests {
         });
 
         let key = "amount";
-        let result = extrac_number(&data, key);
+        let result = extract_number(&data, key);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 100);
 
@@ -79,7 +79,7 @@ mod tests {
         });
 
         let key = "amount";
-        let result = extrac_number(&data, key);
+        let result = extract_number(&data, key);
         assert!(result.is_err());
     }
 
