@@ -1,17 +1,18 @@
-use std::sync::Arc;
-use diesel::{OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
-use uuid::Uuid;
 use crate::domain::user::entities::User;
 use crate::domain::user::repositories::UserRepository;
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use crate::infra::postgres::models::profile::{CreateProfileModel, ProfileModel, UpdateProfileModel};
+use crate::infra::postgres::models::profile::{
+    CreateProfileModel, ProfileModel, UpdateProfileModel,
+};
 use crate::infra::postgres::models::user::{CreateUserModel, UpdateUserModel, UserModel};
 use crate::prelude::*;
-use crate::schema::users::dsl::users;
-use crate::schema::profiles::dsl::profiles;
 use crate::schema;
+use crate::schema::profiles::dsl::profiles;
+use crate::schema::users::dsl::users;
 use diesel::ExpressionMethods;
-
+use diesel::{OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct PostgresUserRepository {
@@ -31,23 +32,27 @@ impl UserRepository for PostgresUserRepository {
         let new_user = CreateUserModel::try_from(user)?;
         let mut new_profile = CreateProfileModel::try_from(user.profile())?;
 
-        let response = connection.build_transaction().run::<_, diesel::result::Error, _>(|conn| {
-            let user = diesel::insert_into(users)
-                .values(&new_user)
-                .returning(UserModel::as_select())
-                .get_result(conn)?;
-            new_profile.user_id = user.id;
-            let profile = diesel::insert_into(profiles)
-                .values(&new_profile)
-                .returning(ProfileModel::as_select())
-                .get_result(conn)?;
-            Ok((user, profile))
-        }).map_err(|e| match e {
-            diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) => {
-                Error::RecordAlreadyExists
-            },
-            other => Error::Database(other.to_string()),
-        })?;
+        let response = connection
+            .build_transaction()
+            .run::<_, diesel::result::Error, _>(|conn| {
+                let user = diesel::insert_into(users)
+                    .values(&new_user)
+                    .returning(UserModel::as_select())
+                    .get_result(conn)?;
+                new_profile.user_id = user.id;
+                let profile = diesel::insert_into(profiles)
+                    .values(&new_profile)
+                    .returning(ProfileModel::as_select())
+                    .get_result(conn)?;
+                Ok((user, profile))
+            })
+            .map_err(|e| match e {
+                diesel::result::Error::DatabaseError(
+                    diesel::result::DatabaseErrorKind::UniqueViolation,
+                    _,
+                ) => Error::RecordAlreadyExists,
+                other => Error::Database(other.to_string()),
+            })?;
 
         let user = User::try_from(response)?;
         Ok(user)
@@ -64,15 +69,16 @@ impl UserRepository for PostgresUserRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("User {} not found", user_id);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
-        let result = user.map(|(user, profile)| {
-            let model =
-            User::try_from((user, profile));
-            model
-        }).transpose()?;
+        let result = user
+            .map(|(user, profile)| {
+                let model = User::try_from((user, profile));
+                model
+            })
+            .transpose()?;
         Ok(result)
     }
 
@@ -87,15 +93,16 @@ impl UserRepository for PostgresUserRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("User with email {} not found", email);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
-        let result = user.map(|(user, profile)| {
-            let model =
-            User::try_from((user, profile));
-            model
-        }).transpose()?;
+        let result = user
+            .map(|(user, profile)| {
+                let model = User::try_from((user, profile));
+                model
+            })
+            .transpose()?;
         Ok(result)
     }
 
@@ -110,15 +117,16 @@ impl UserRepository for PostgresUserRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("User with firebase id {} not found", firebase_id);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
-        let result = user.map(|(user, profile)| {
-            let model =
-            User::try_from((user, profile));
-            model
-        }).transpose()?;
+        let result = user
+            .map(|(user, profile)| {
+                let model = User::try_from((user, profile));
+                model
+            })
+            .transpose()?;
         Ok(result)
     }
 
@@ -131,17 +139,21 @@ impl UserRepository for PostgresUserRepository {
             .optional()
             .map_err(|e| match e {
                 diesel::result::Error::NotFound => {
-                    let msg = format!("User with stripe customer id {} not found", strip_customer_id);
+                    let msg = format!(
+                        "User with stripe customer id {} not found",
+                        strip_customer_id
+                    );
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
-        let result = user.map(|(user, profile)| {
-            let model =
-            User::try_from((user, profile));
-            model
-        }).transpose()?;
+        let result = user
+            .map(|(user, profile)| {
+                let model = User::try_from((user, profile));
+                model
+            })
+            .transpose()?;
         Ok(result)
     }
 
@@ -157,9 +169,10 @@ impl UserRepository for PostgresUserRepository {
                 let updated_user = diesel::update(users.find(user.id()))
                     .set(&user_model)
                     .get_result::<UserModel>(conn)?;
-                let updated_profile = diesel::update(profiles.filter(schema::profiles::user_id.eq(user.id())))
-                    .set(&profile_model)
-                    .get_result::<ProfileModel>(conn)?;
+                let updated_profile =
+                    diesel::update(profiles.filter(schema::profiles::user_id.eq(user.id())))
+                        .set(&profile_model)
+                        .get_result::<ProfileModel>(conn)?;
                 Ok((updated_user, updated_profile))
             })
             .map_err(|e| match e {
@@ -177,5 +190,4 @@ impl UserRepository for PostgresUserRepository {
             .map_err(|e| Error::Database(e.to_string()))?;
         Ok(())
     }
-
 }

@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
-use crate::domain::payment::entities::checkout::{LineItem};
+use crate::domain::payment::entities::checkout::LineItem;
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::prelude::*;
+use serde::{Deserialize, Serialize};
 
 //*******************************************//
 //************** NewCustomerDto **************//
@@ -10,7 +10,7 @@ use crate::prelude::*;
 #[derive(Debug, Deserialize)]
 pub struct NewCustomerDto {
     pub email: String,
-    pub name: Option<String>
+    pub name: Option<String>,
 }
 impl NewCustomerDto {
     pub fn new(email: String, name: Option<String>) -> Self {
@@ -54,7 +54,6 @@ impl NewCheckoutSessionDto {
 pub struct NewPortalDto {
     pub return_url: String,
 }
-
 
 //*****************************************//
 //*************** SessionDto **************//

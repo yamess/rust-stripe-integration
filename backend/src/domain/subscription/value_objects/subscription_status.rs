@@ -1,8 +1,7 @@
+use crate::prelude::*;
+use serde::Serialize;
 use std::fmt::Display;
 use std::str::FromStr;
-use serde::Serialize;
-use crate::prelude::*;
-
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SubscriptionStatus {

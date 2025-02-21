@@ -1,10 +1,10 @@
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
-use uuid::Uuid;
 use crate::application::user::dtos::{UpdateUserDto, UserDto};
 use crate::application::user::extractor::{Authenticate, UserExtractor};
 use crate::application::user::use_cases::{DeleteUserUseCase, LoginUseCase, UpdateUserUseCase};
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
+use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
+use uuid::Uuid;
 
 #[post("/login")]
 pub async fn login(auth: Authenticate, state: web::Data<AppState>) -> Result<impl Responder> {
@@ -14,14 +14,16 @@ pub async fn login(auth: Authenticate, state: web::Data<AppState>) -> Result<imp
         Ok(user) => {
             tracing::info!("New user created: {}", user.id);
             Ok(HttpResponse::Ok().json(user))
-        },
-        Err(e) => Err(e)
+        }
+        Err(e) => Err(e),
     }
 }
 
 #[patch("/users")]
 pub async fn update_user(
-    user: UserExtractor, updates: web::Json<UpdateUserDto>, state: web::Data<AppState>
+    user: UserExtractor,
+    updates: web::Json<UpdateUserDto>,
+    state: web::Data<AppState>,
 ) -> Result<impl Responder> {
     let user = user.0;
     let updates = updates.into_inner();
@@ -31,12 +33,15 @@ pub async fn update_user(
 
     match use_case.execute(updates, &user).await {
         Ok(user) => Ok(HttpResponse::Ok().json(user)),
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     }
 }
 
 #[delete("/users")]
-pub async fn delete_user(user: UserExtractor, state: web::Data<AppState>) -> Result<impl Responder> {
+pub async fn delete_user(
+    user: UserExtractor,
+    state: web::Data<AppState>,
+) -> Result<impl Responder> {
     let service = state.user_service.clone();
     let use_case = DeleteUserUseCase::new(service);
     use_case.execute(&user.0).await?;
@@ -50,7 +55,10 @@ pub async fn get_user(user: UserExtractor) -> Result<impl Responder> {
 }
 
 #[get("/users/me/subscription")]
-pub async fn get_user_subscription(user: UserExtractor, state: web::Data<AppState>) -> Result<impl Responder> {
+pub async fn get_user_subscription(
+    user: UserExtractor,
+    state: web::Data<AppState>,
+) -> Result<impl Responder> {
     let user = user.0;
     let service = state.subscription_service.clone();
     let subscription = service.find_by_user_id(&user.id).await?;

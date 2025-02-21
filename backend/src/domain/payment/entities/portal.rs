@@ -8,7 +8,6 @@ pub struct CustomerPortalSessionResponse {
     pub url: String,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomerPortalSession {
     customer: String,

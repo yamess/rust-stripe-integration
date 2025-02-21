@@ -4,16 +4,13 @@ use crate::domain::payment::entities::customer::Customer;
 use crate::domain::user::repositories::UserRepository;
 use crate::prelude::*;
 
-
 #[derive(Clone)]
 pub struct UpdateUserEvent<U: UserRepository> {
     service: UserService<U>,
 }
-impl <U: UserRepository> UpdateUserEvent<U> {
+impl<U: UserRepository> UpdateUserEvent<U> {
     pub fn new(service: UserService<U>) -> Self {
-        Self {
-            service,
-        }
+        Self { service }
     }
 
     pub async fn execute(&self, customer: Customer) -> Result<()> {

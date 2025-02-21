@@ -1,11 +1,10 @@
+use crate::domain::user::entities::Profile;
+use crate::prelude::*;
+use crate::schema;
+use chrono::{DateTime, Utc};
 use diesel;
 use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use uuid::Uuid;
-use crate::schema;
-use chrono::{DateTime, Utc};
-use crate::domain::user::entities::Profile;
-use crate::prelude::*;
-
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::profiles)]
@@ -29,7 +28,6 @@ impl TryFrom<&Profile> for CreateProfileModel {
         })
     }
 }
-
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(belongs_to(UserModel, foreign_key = user_id))]

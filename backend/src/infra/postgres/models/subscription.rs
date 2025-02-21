@@ -1,12 +1,11 @@
-use std::str::FromStr;
-use chrono::{DateTime, Utc};
-use diesel::{AsChangeset, Insertable, Queryable, Selectable};
-use uuid::Uuid;
 use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 use crate::prelude::*;
 use crate::schema;
-
+use chrono::{DateTime, Utc};
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use std::str::FromStr;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Insertable)]
 #[diesel(table_name = schema::subscriptions)]

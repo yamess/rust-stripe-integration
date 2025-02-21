@@ -1,7 +1,7 @@
+use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
-use crate::domain::subscription::value_objects::subscription_status::SubscriptionStatus;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Subscription {

@@ -47,8 +47,4 @@ diesel::table! {
 diesel::joinable!(profiles -> users (user_id));
 diesel::joinable!(subscriptions -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    profiles,
-    subscriptions,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(profiles, subscriptions, users,);

@@ -1,65 +1,59 @@
-use actix_web::{FromRequest, HttpMessage, HttpRequest};
-use actix_web::dev::Payload;
-use actix_web::web::Data;
-use futures_util::future::LocalBoxFuture;
-use futures_util::StreamExt;
 use crate::infra::dependencies::AppState;
 use crate::infra::stripe::service::StripeSignatureVerificationService;
 use crate::prelude::*;
-
+use actix_web::dev::Payload;
+use actix_web::web::Data;
+use actix_web::{web, FromRequest, HttpMessage, HttpRequest};
+use futures_util::future::LocalBoxFuture;
+use futures_util::StreamExt;
+use serde::de::DeserializeOwned;
+use serde_json::Value;
 
 #[derive(Debug)]
-pub struct SignatureVerifier(());
+pub struct SignatureVerifier<T>(pub T);
 
-impl FromRequest for SignatureVerifier {
+impl<T: DeserializeOwned + 'static> FromRequest for SignatureVerifier<T> {
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self>>;
 
     fn from_request(req: &HttpRequest, payload: &mut Payload) -> Self::Future {
-
-
         let signature = req
             .headers()
             .get("Stripe-Signature")
             .and_then(|value| value.to_str().ok())
             .map(String::from);
+
         let state = req.app_data::<Data<AppState>>().cloned();
-        let mut payload = payload.take();
+
+        // let mut payload = payload.take();
+        let payload_future = web::Bytes::from_request(req, payload);
 
         Box::pin(async move {
+            let signature = signature.ok_or_else(|| {
+                tracing::error!("Missing Stripe-Signature header");
+                Error::Unauthorized
+            })?;
+            let state = state.ok_or_else(|| {
+                tracing::error!("App state not found");
+                Error::InternalError
+            })?;
+            let raw_body = payload_future.await.map_err(|e| {
+                tracing::error!("Failed to read request body: {}", e);
+                Error::InternalError
+            })?;
+            // Convert raw body to string for verification
+            let payload_str = String::from_utf8(raw_body.to_vec()).map_err(|e| {
+                tracing::error!("Invalid UTF-8 in request body: {}", e);
+                Error::InternalError
+            })?;
+            // Verify signature
+            state.signature_service.verify(&payload_str, &signature)?;
 
-            if let (Some(signature), Some(state)) = (signature, state) {
-                if state.config.app().environment != "production" {
-                    return Ok(SignatureVerifier(()));
-                }
-                let signature_service = state.signature_service.clone();
-
-                let mut body_bytes = Vec::new();
-
-                while let Some(chunk) = payload.next().await {
-                    let chunk = chunk.map_err(|e| {
-                        tracing::error!("Failed to read request body: {}", e);
-                        Error::InternalError
-                    })?;
-                    body_bytes.extend_from_slice(&chunk);
-                }
-
-                let body = String::from_utf8(body_bytes).map_err(|e| {
-                    tracing::error!("Failed to parse request body: {}", e);
-                    Error::InternalError
-                })?;
-
-                match signature_service.verify(&body, &signature) {
-                    Ok(()) => Ok(SignatureVerifier(())),
-                    Err(e) => {
-                        tracing::error!("Invalid signature: {}", e);
-                        Err(Error::Unauthorized)
-                    }
-                }
-            } else {
-                tracing::error!("Unauthorized");
-                Err(Error::Unauthorized)
-            }
+            let json_payload: T = serde_json::from_slice(&raw_body).map_err(|e| {
+                tracing::error!("Failed to parse request body: {}", e);
+                Error::InternalError
+            })?;
+            Ok(SignatureVerifier(json_payload))
         })
     }
 }

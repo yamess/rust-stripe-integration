@@ -6,7 +6,6 @@ pub struct LineItem {
     pub quantity: i32,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CheckoutSession {
     customer: String,

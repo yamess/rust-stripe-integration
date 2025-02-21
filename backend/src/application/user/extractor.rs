@@ -1,13 +1,12 @@
-use actix_web::{FromRequest, HttpRequest};
-use actix_web::dev::Payload;
-use actix_web::web::Data;
-use futures_util::future::LocalBoxFuture;
 use crate::application::user::dtos::UserDto;
 use crate::application::user::use_cases::GetUserByAuthProviderIdUseCase;
 use crate::domain::user::entities::AuthProviderData;
 use crate::infra::dependencies::AppState;
 use crate::prelude::*;
-
+use actix_web::dev::Payload;
+use actix_web::web::Data;
+use actix_web::{FromRequest, HttpRequest};
+use futures_util::future::LocalBoxFuture;
 
 #[derive(Debug, Clone)]
 pub struct Authenticate(pub AuthProviderData);

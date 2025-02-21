@@ -1,4 +1,6 @@
-use crate::application::payment::dto::{NewCheckoutSessionDto, NewCustomerDto, NewPortalDto,SessionDto};
+use crate::application::payment::dto::{
+    NewCheckoutSessionDto, NewCustomerDto, NewPortalDto, SessionDto,
+};
 use crate::application::payment::service::PaymentService;
 use crate::application::user::dtos::UserDto;
 use crate::domain::payment::client::PaymentClient;
@@ -51,13 +53,15 @@ use crate::prelude::*;
 pub struct CreateCheckoutSessionUseCase<C> {
     service: PaymentService<C>,
 }
-impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
+impl<C: PaymentClient> CreateCheckoutSessionUseCase<C> {
     pub fn new(service: PaymentService<C>) -> Self {
         Self { service }
     }
 
     pub async fn execute(
-        &self, user: UserDto, new_checkout: NewCheckoutSessionDto
+        &self,
+        user: UserDto,
+        new_checkout: NewCheckoutSessionDto,
     ) -> Result<SessionDto> {
         let user = User::try_from(&user)?;
         match user.stripe_customer_id() {
@@ -70,8 +74,10 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
                             name: user.profile().full_name(),
                         };
                         self.service.create_customer(new_customer).await?
-                    },
-                    Err(_) => return Err(Error::BadRequest("Failed to create customer".to_string())),
+                    }
+                    Err(_) => {
+                        return Err(Error::BadRequest("Failed to create customer".to_string()))
+                    }
                     Ok(customer) => customer,
                 };
 
@@ -83,9 +89,12 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
                     new_checkout.cancel_url,
                 );
                 tracing::info!("Creating checkout session for user: {:?}", &user.id());
-                let session = self.service.create_checkout_session(checkout_session).await?;
+                let session = self
+                    .service
+                    .create_checkout_session(checkout_session)
+                    .await?;
                 Ok(session)
-            },
+            }
             Some(id) => {
                 tracing::debug!("Customer already exists for user: {}", &user.id());
                 let checkout_session = CheckoutSession::new(
@@ -95,7 +104,10 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
                     new_checkout.cancel_url,
                 );
                 tracing::info!("Creating checkout session for user: {:?}", &user.id());
-                let session = self.service.create_checkout_session(checkout_session).await?;
+                let session = self
+                    .service
+                    .create_checkout_session(checkout_session)
+                    .await?;
                 Ok(session)
             }
         }
@@ -106,7 +118,7 @@ impl <C: PaymentClient> CreateCheckoutSessionUseCase<C> {
 pub struct CreatePortalSessionUseCase<C> {
     service: PaymentService<C>,
 }
-impl <C: PaymentClient> CreatePortalSessionUseCase<C> {
+impl<C: PaymentClient> CreatePortalSessionUseCase<C> {
     pub fn new(service: PaymentService<C>) -> Self {
         Self { service }
     }
@@ -116,13 +128,12 @@ impl <C: PaymentClient> CreatePortalSessionUseCase<C> {
         match user.stripe_customer_id() {
             None => {
                 tracing::error!("User does not have a stripe customer id");
-                Err(Error::BadRequest("User does not have a stripe customer id".to_string()))
-            },
+                Err(Error::BadRequest(
+                    "User does not have a stripe customer id".to_string(),
+                ))
+            }
             Some(id) => {
-                let portal = CustomerPortalSession::new(
-                    id.to_string(),
-                    new_portal.return_url,
-                );
+                let portal = CustomerPortalSession::new(id.to_string(), new_portal.return_url);
                 self.service.create_portal_session(portal).await
             }
         }

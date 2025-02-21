@@ -1,5 +1,5 @@
 use crate::prelude::*;
 
 pub trait SignatureVerificationService: Send + Sync {
-    fn verify(&self, body: &[u8], signature: &str) -> Result<()>;
+    fn verify(&self, body: &str, signature: &str) -> Result<()>;
 }

@@ -1,6 +1,6 @@
-use uuid::Uuid;
 use crate::domain::user::entities::User;
 use crate::prelude::*;
+use uuid::Uuid;
 
 pub trait UserRepository: Send + Sync {
     async fn save(&self, user: &User) -> Result<User>;

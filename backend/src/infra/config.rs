@@ -1,7 +1,6 @@
-use std::path::{Path, PathBuf};
-use serde::Deserialize;
 use crate::prelude::*;
-
+use serde::Deserialize;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Secrets {
@@ -14,10 +13,13 @@ impl Secrets {
     pub fn new<P: AsRef<Path>>(secrets_path: P) -> Self {
         let base_path = PathBuf::from(secrets_path.as_ref());
 
-        let stripe_secret_key = Self::read_secret_file(&base_path.join("stripe-secret-key")).unwrap();
-        let postgres_connection_string = Self::read_secret_file(&base_path.join("postgres-connection-string")).unwrap();
+        let stripe_secret_key =
+            Self::read_secret_file(&base_path.join("stripe-secret-key")).unwrap();
+        let postgres_connection_string =
+            Self::read_secret_file(&base_path.join("postgres-connection-string")).unwrap();
         let firebase_api_key = Self::read_secret_file(&base_path.join("firebase-api-key")).unwrap();
-        let stripe_webhook_secret = Self::read_secret_file(&base_path.join("stripe-webhook-secret")).ok();
+        let stripe_webhook_secret =
+            Self::read_secret_file(&base_path.join("stripe-webhook-secret")).ok();
         Self {
             stripe_secret_key,
             postgres_connection_string,

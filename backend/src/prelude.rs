@@ -5,6 +5,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("Invalid Signature. Cause: {0}")]
+    InvalidSignature(String),
     #[error("Secrets not found. Cause: {0}")]
     SecretNotFound(String),
     #[error("Invalid Token. Cause: {0}")]

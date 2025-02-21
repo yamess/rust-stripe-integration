@@ -1,6 +1,6 @@
+use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
-use crate::prelude::*;
 
 pub fn extract_bool(data: &Value, key: &str) -> Result<bool> {
     data.pointer(&format!("/{}", key))
@@ -9,11 +9,11 @@ pub fn extract_bool(data: &Value, key: &str) -> Result<bool> {
 }
 
 pub fn extract_string(data: &Value, key: &str) -> Result<String> {
-        data.pointer(&format!("/{}", key))
-            .and_then(|v| v.as_str())
-            .map(String::from)
-            .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))
-    }
+    data.pointer(&format!("/{}", key))
+        .and_then(|v| v.as_str())
+        .map(String::from)
+        .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))
+}
 
 pub fn extract_number(data: &Value, key: &str) -> Result<i64> {
     data.pointer(&format!("/{}", key))
@@ -22,7 +22,8 @@ pub fn extract_number(data: &Value, key: &str) -> Result<i64> {
 }
 
 pub fn extract_timestamp(data: &Value, key: &str) -> Result<DateTime<Utc>> {
-    let timestamp: i64 = data.pointer(&format!("/{}", key))
+    let timestamp: i64 = data
+        .pointer(&format!("/{}", key))
         .and_then(|v| v.as_i64())
         .ok_or(Error::BadRequest(format!("Missing or Invalid `{}`", key)))?;
 
@@ -36,8 +37,8 @@ pub fn extract_timestamp(data: &Value, key: &str) -> Result<DateTime<Utc>> {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::json;
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_extract_string() {
@@ -92,7 +93,10 @@ mod tests {
         let key = "timestamp";
         let result = extract_timestamp(&data, key);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), DateTime::<Utc>::from_timestamp(1619680000, 0).unwrap());
+        assert_eq!(
+            result.unwrap(),
+            DateTime::<Utc>::from_timestamp(1619680000, 0).unwrap()
+        );
 
         let data = json!({
             "timestamp": "invalid"

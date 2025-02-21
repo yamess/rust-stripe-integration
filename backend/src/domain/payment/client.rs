@@ -1,4 +1,4 @@
-use crate::domain::payment::entities::checkout::{CheckoutSession};
+use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
 use crate::domain::payment::entities::portal::CustomerPortalSession;
 use crate::prelude::*;

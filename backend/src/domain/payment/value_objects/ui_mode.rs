@@ -1,10 +1,10 @@
-use std::fmt::Display;
 use serde::Serialize;
+use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum UiMode {
     Embedded,
-    Hosted
+    Hosted,
 }
 impl UiMode {
     pub fn as_str(&self) -> &'static str {

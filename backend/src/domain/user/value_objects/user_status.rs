@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::prelude::*;
+use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UserStatus {

@@ -1,11 +1,10 @@
-use std::sync::Arc;
-use crate::domain::user::repositories::UserRepository;
-use uuid::Uuid;
 use crate::application::user::dtos::{NewUserDto, UpdateUserDto, UserDto};
 use crate::domain::user::entities::{AuthProviderData, User};
+use crate::domain::user::repositories::UserRepository;
 use crate::domain::user::services::Authenticator;
 use crate::prelude::*;
-
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct UserService<U> {
@@ -32,7 +31,7 @@ impl<U: UserRepository> UserService<U> {
             Ok(None) => {
                 tracing::info!("User {} not found", id);
                 Err(Error::NotFound("User not found".to_string()))
-            },
+            }
             Err(e) => Err(e),
         }
     }
@@ -47,7 +46,7 @@ impl<U: UserRepository> UserService<U> {
             Ok(None) => {
                 tracing::info!("User with email {} not found", email);
                 Err(Error::NotFound("User not found".to_string()))
-            },
+            }
             Err(e) => Err(e),
         }
     }
@@ -62,29 +61,40 @@ impl<U: UserRepository> UserService<U> {
             Ok(None) => {
                 tracing::info!("User with auth id {} not found", auth_id);
                 Err(Error::NotFound("User not found".to_string()))
-            },
+            }
             Err(e) => Err(e),
         }
     }
 
     pub async fn get_by_payment_provider_id(&self, pay_provider_id: &str) -> Result<User> {
-        let user = self.user_repo.find_by_strip_customer_id(pay_provider_id).await;
+        let user = self
+            .user_repo
+            .find_by_strip_customer_id(pay_provider_id)
+            .await;
         match user {
             Ok(Some(user)) => {
                 // let user = UserDto::try_from(&user)?;
                 Ok(user)
             }
             Ok(None) => {
-                tracing::info!("User with subscription provider id {} not found", pay_provider_id);
+                tracing::info!(
+                    "User with subscription provider id {} not found",
+                    pay_provider_id
+                );
                 Err(Error::NotFound("User not found".to_string()))
-            },
+            }
             Err(e) => Err(e),
         }
     }
 
     pub async fn update(&self, updates: UpdateUserDto, user: &User) -> Result<User> {
         let mut user = user.clone();
-        user.update_profile(updates.first_name, updates.last_name, updates.phone, updates.photo_url);
+        user.update_profile(
+            updates.first_name,
+            updates.last_name,
+            updates.phone,
+            updates.photo_url,
+        );
         user.update(updates.status, user.role(), updates.stripe_customer_id);
 
         let user = self.user_repo.update(&user).await?;
@@ -98,10 +108,9 @@ impl<U: UserRepository> UserService<U> {
     }
 }
 
-
 #[derive(Debug, Clone)]
 pub struct AuthenticationService<A: Authenticator> {
-    auth_client: Arc<A>
+    auth_client: Arc<A>,
 }
 
 impl<A: Authenticator> AuthenticationService<A> {

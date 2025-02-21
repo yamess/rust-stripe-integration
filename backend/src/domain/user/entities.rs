@@ -1,9 +1,8 @@
+use crate::domain::user::value_objects::role::Role;
+use crate::domain::user::value_objects::user_status::UserStatus;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
-use crate::domain::user::value_objects::role::Role;
-use crate::domain::user::value_objects::user_status::UserStatus;
-
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -18,11 +17,7 @@ pub struct User {
     profile: Profile,
 }
 impl User {
-    pub fn new(
-        email: String,
-        firebase_id: String,
-        stripe_customer_id: Option<String>,
-    ) -> Self {
+    pub fn new(email: String, firebase_id: String, stripe_customer_id: Option<String>) -> Self {
         Self {
             id: Uuid::nil(), // Real value will set by the repository database
             email,
@@ -73,7 +68,10 @@ impl User {
     }
 
     pub fn update(
-        &mut self, status: Option<UserStatus>, role: Role, stripe_customer_id: Option<String>
+        &mut self,
+        status: Option<UserStatus>,
+        role: Role,
+        stripe_customer_id: Option<String>,
     ) {
         if let Some(status) = status {
             self.status = status;
@@ -120,7 +118,6 @@ impl User {
     }
 }
 
-
 #[derive(Debug, Clone)]
 pub struct Profile {
     id: i32,
@@ -130,11 +127,10 @@ pub struct Profile {
     phone: Option<String>,
     photo_url: Option<String>,
     created_at: DateTime<Utc>,
-    updated_at: Option<DateTime<Utc>>
+    updated_at: Option<DateTime<Utc>>,
 }
 
 impl Profile {
-
     pub fn id(&self) -> i32 {
         self.id
     }
@@ -163,15 +159,13 @@ impl Profile {
         self.created_at
     }
 
-    pub fn updated_at(&self) -> Option<DateTime<Utc> > {
+    pub fn updated_at(&self) -> Option<DateTime<Utc>> {
         self.updated_at
     }
 
     pub fn full_name(&self) -> Option<String> {
         match (&self.first_name, &self.last_name) {
-            (Some(first_name), Some(last_name)) => {
-                Some(format!("{} {}", first_name, last_name))
-            },
+            (Some(first_name), Some(last_name)) => Some(format!("{} {}", first_name, last_name)),
             (Some(first_name), None) => Some(first_name.to_string()),
             (None, Some(last_name)) => Some(last_name.to_string()),
             _ => None,
@@ -213,7 +207,6 @@ impl Profile {
         }
     }
 }
-
 
 impl Default for Profile {
     fn default() -> Self {

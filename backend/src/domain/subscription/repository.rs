@@ -1,7 +1,6 @@
-use uuid::Uuid;
-use crate::prelude::*;
 use crate::domain::subscription::entities::Subscription;
-
+use crate::prelude::*;
+use uuid::Uuid;
 
 pub trait SubscriptionRepository: Send + Sync {
     async fn save(&self, subscription: &Subscription) -> Result<Subscription>;

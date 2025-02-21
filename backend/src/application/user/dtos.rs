@@ -1,10 +1,10 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use crate::domain::user::entities::{Profile, User};
 use crate::domain::user::value_objects::role::Role;
 use crate::domain::user::value_objects::user_status::UserStatus;
 use crate::prelude::*;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct NewUserDto {
@@ -21,7 +21,7 @@ pub struct UserDto {
     pub role: Role,
     pub created_at: DateTime<Utc>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub profile: ProfileDto
+    pub profile: ProfileDto,
 }
 impl TryFrom<&User> for UserDto {
     type Error = Error;
@@ -67,7 +67,6 @@ impl TryFrom<&UserDto> for User {
     }
 }
 
-
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserDto {
     pub stripe_customer_id: Option<String>,
@@ -96,7 +95,6 @@ impl UpdateUserDto {
         }
     }
 }
-
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ProfileDto {

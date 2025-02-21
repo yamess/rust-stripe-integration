@@ -1,13 +1,15 @@
-use std::sync::Arc;
-use diesel::{ExpressionMethods, OptionalExtension, RunQueryDsl, QueryDsl, SelectableHelper};
-use uuid::Uuid;
 use crate::domain::subscription::entities::Subscription;
 use crate::domain::subscription::repository::SubscriptionRepository;
 use crate::infra::postgres::connection::{get_connection, DbPool};
-use crate::infra::postgres::models::subscription::{CreateSubscriptionModel, SubscriptionModel, UpdateSubscriptionModel};
-use crate::schema::subscriptions::dsl::subscriptions;
+use crate::infra::postgres::models::subscription::{
+    CreateSubscriptionModel, SubscriptionModel, UpdateSubscriptionModel,
+};
 use crate::prelude::*;
 use crate::schema;
+use crate::schema::subscriptions::dsl::subscriptions;
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl, SelectableHelper};
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct PostgresSubscriptionRepository {
@@ -27,9 +29,10 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .values(&model)
             .get_result::<SubscriptionModel>(&mut connection)
             .map_err(|e| match e {
-                diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) => {
-                    Error::RecordAlreadyExists
-                },
+                diesel::result::Error::DatabaseError(
+                    diesel::result::DatabaseErrorKind::UniqueViolation,
+                    _,
+                ) => Error::RecordAlreadyExists,
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -47,7 +50,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("Subscription {} not found", id);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -55,7 +58,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             Some(model) => {
                 let subscription = Subscription::try_from(model)?;
                 Ok(subscription)
-            },
+            }
             None => Err(Error::NotFound("Subscription {} not found".to_string())),
         }
     }
@@ -68,9 +71,12 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .optional()
             .map_err(|e| match e {
                 diesel::result::Error::NotFound => {
-                    let msg = format!("Subscription with stripe subscription id {} not found", subscription_id);
+                    let msg = format!(
+                        "Subscription with stripe subscription id {} not found",
+                        subscription_id
+                    );
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -78,7 +84,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             Some(model) => {
                 let subscription = Subscription::try_from(model)?;
                 Ok(subscription)
-            },
+            }
             None => Err(Error::NotFound("Subscription {} not found".to_string())),
         }
     }
@@ -92,7 +98,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("Subscription with user id {} not found", user_id);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -108,9 +114,12 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             .optional()
             .map_err(|e| match e {
                 diesel::result::Error::NotFound => {
-                    let msg = format!("Subscription with stripe customer id {} not found", customer_id);
+                    let msg = format!(
+                        "Subscription with stripe customer id {} not found",
+                        customer_id
+                    );
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -118,7 +127,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
             Some(model) => {
                 let subscription = Subscription::try_from(model)?;
                 Ok(subscription)
-            },
+            }
             None => Err(Error::NotFound("Subscription {} not found".to_string())),
         }
     }
@@ -135,7 +144,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("Subscription {} not found", subscription.id());
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 
@@ -153,7 +162,7 @@ impl SubscriptionRepository for PostgresSubscriptionRepository {
                 diesel::result::Error::NotFound => {
                     let msg = format!("Subscription {} not found", id);
                     Error::NotFound(msg)
-                },
+                }
                 other => Error::Database(other.to_string()),
             })?;
 

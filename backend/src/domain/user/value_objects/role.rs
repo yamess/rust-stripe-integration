@@ -1,12 +1,12 @@
-use serde::Serialize;
 use crate::prelude::*;
+use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Role {
     Admin,
     User,
     Guest,
-    Super
+    Super,
 }
 
 impl Role {

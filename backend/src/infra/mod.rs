@@ -1,8 +1,8 @@
 pub mod cli;
 pub mod config;
-pub mod web;
+mod constants;
 pub mod dependencies;
+pub(super) mod firebase;
 pub(super) mod postgres;
 pub(super) mod stripe;
-pub(super) mod firebase;
-mod constants;
+pub mod web;

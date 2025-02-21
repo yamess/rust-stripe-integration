@@ -1,3 +1,3 @@
-pub mod payment;
 mod models;
+pub mod payment;
 pub mod service;

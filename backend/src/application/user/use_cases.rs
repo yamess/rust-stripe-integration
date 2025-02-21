@@ -1,11 +1,10 @@
-use uuid::Uuid;
 use crate::application::user::dtos::{NewUserDto, UpdateUserDto, UserDto};
 use crate::application::user::service::{AuthenticationService, UserService};
 use crate::domain::user::entities::{AuthProviderData, User};
 use crate::domain::user::repositories::UserRepository;
 use crate::domain::user::services::Authenticator;
 use crate::prelude::*;
-
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct LoginUseCase<U: UserRepository> {
@@ -13,9 +12,7 @@ pub struct LoginUseCase<U: UserRepository> {
 }
 impl<U: UserRepository> LoginUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {
-            user_service,
-        }
+        Self { user_service }
     }
 
     pub async fn execute(&self, auth: &AuthProviderData) -> Result<UserDto> {
@@ -25,8 +22,8 @@ impl<U: UserRepository> LoginUseCase<U> {
                 let user = User::new(auth.email.clone(), auth.id.to_string(), None);
                 let user = self.user_service.register(&user).await?;
                 Ok(user)
-            },
-            Err(e) => Err(e)
+            }
+            Err(e) => Err(e),
         }
     }
 }
@@ -48,11 +45,11 @@ impl<U: UserRepository> GetUserByIdUseCase<U> {
 
 #[derive(Clone)]
 pub struct GetUserByAuthProviderIdUseCase<U: UserRepository> {
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
 impl<U: UserRepository> GetUserByAuthProviderIdUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {user_service}
+        Self { user_service }
     }
 
     pub async fn execute(&self, auth_id: &str) -> Result<UserDto> {
@@ -63,26 +60,29 @@ impl<U: UserRepository> GetUserByAuthProviderIdUseCase<U> {
 
 #[derive(Clone)]
 pub struct GetUserByPaymentProviderIdUseCase<U: UserRepository> {
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
-impl <U: UserRepository> GetUserByPaymentProviderIdUseCase<U> {
+impl<U: UserRepository> GetUserByPaymentProviderIdUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {user_service}
+        Self { user_service }
     }
 
     pub async fn execute(&self, payment_id: &str) -> Result<UserDto> {
-        let user = self.user_service.get_by_payment_provider_id(payment_id).await?;
+        let user = self
+            .user_service
+            .get_by_payment_provider_id(payment_id)
+            .await?;
         UserDto::try_from(&user)
     }
 }
 
 #[derive(Clone)]
 pub struct GetUserByEmailUseCase<U: UserRepository> {
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
 impl<U: UserRepository> GetUserByEmailUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {user_service}
+        Self { user_service }
     }
 
     pub async fn execute(&self, email: &str) -> Result<UserDto> {
@@ -93,11 +93,11 @@ impl<U: UserRepository> GetUserByEmailUseCase<U> {
 
 #[derive(Clone)]
 pub struct UpdateUserUseCase<U: UserRepository> {
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
 impl<U: UserRepository> UpdateUserUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {user_service}
+        Self { user_service }
     }
 
     pub async fn execute(&self, updates: UpdateUserDto, user: &UserDto) -> Result<UserDto> {
@@ -108,11 +108,11 @@ impl<U: UserRepository> UpdateUserUseCase<U> {
 }
 
 pub struct DeleteUserUseCase<U: UserRepository> {
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
 impl<U: UserRepository> DeleteUserUseCase<U> {
     pub fn new(user_service: UserService<U>) -> Self {
-        Self {user_service}
+        Self { user_service }
     }
 
     pub async fn execute(&self, user: &UserDto) -> Result<()> {
@@ -124,27 +124,33 @@ impl<U: UserRepository> DeleteUserUseCase<U> {
 #[derive(Clone)]
 pub struct ExtractUserUseCase<U: UserRepository, A: Authenticator> {
     authenticator: AuthenticationService<A>,
-    user_service: UserService<U>
+    user_service: UserService<U>,
 }
 impl<U: UserRepository, A: Authenticator> ExtractUserUseCase<U, A> {
     pub fn new(authenticator: AuthenticationService<A>, user_service: UserService<U>) -> Self {
-        Self {authenticator, user_service}
+        Self {
+            authenticator,
+            user_service,
+        }
     }
 
     pub async fn execute(&self, token: &str) -> Result<UserDto> {
         let auth_data = self.authenticator.authenticate(token).await?;
-        let user = self.user_service.get_by_auth_provider_id(&auth_data.id).await?;
+        let user = self
+            .user_service
+            .get_by_auth_provider_id(&auth_data.id)
+            .await?;
         UserDto::try_from(&user)
     }
 }
 
 #[derive(Clone)]
 pub struct AuthenticateUserUseCase<A: Authenticator> {
-    authenticator: AuthenticationService<A>
+    authenticator: AuthenticationService<A>,
 }
 impl<A: Authenticator> AuthenticateUserUseCase<A> {
     pub fn new(authenticator: AuthenticationService<A>) -> Self {
-        Self {authenticator}
+        Self { authenticator }
     }
 
     pub async fn execute(&self, token: &str) -> Result<AuthProviderData> {

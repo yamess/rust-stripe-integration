@@ -12,7 +12,7 @@ impl Customer {
         Self {
             id: "".to_string(),
             email,
-            name
+            name,
         }
     }
     pub fn id(&self) -> String {
@@ -31,11 +31,6 @@ impl Customer {
         }
     }
     pub fn construct(id: String, email: String, name: Option<String>) -> Self {
-        Self {
-            id,
-            email,
-            name
-        }
+        Self { id, email, name }
     }
 }
-

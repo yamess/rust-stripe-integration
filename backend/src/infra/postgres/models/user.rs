@@ -1,14 +1,13 @@
-use chrono::{DateTime, Utc};
-use diesel::{Insertable, Queryable, Selectable, AsChangeset};
-use diesel;
-use uuid::Uuid;
-use crate::prelude::*;
 use crate::domain::user::entities::{Profile, User};
 use crate::domain::user::value_objects::role::Role;
 use crate::domain::user::value_objects::user_status::UserStatus;
 use crate::infra::postgres::models::profile::ProfileModel;
+use crate::prelude::*;
 use crate::schema;
-
+use chrono::{DateTime, Utc};
+use diesel;
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use uuid::Uuid;
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = schema::users, check_for_backend(diesel::pg::Pg))]
@@ -30,7 +29,6 @@ impl TryFrom<&User> for CreateUserModel {
         })
     }
 }
-
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = schema::users)]

@@ -1,12 +1,11 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
-use serde::ser::SerializeMap;
-use serde_urlencoded::Deserializer;
 use crate::domain::payment::entities::checkout::CheckoutSession;
 use crate::domain::payment::entities::customer::Customer;
 use crate::infra::constants::{CHECKOUT_MODE, TRIAL_PERIOD_DAYS, UI_MODE};
 use crate::prelude::*;
-
+use serde::ser::SerializeMap;
+use serde::{Deserialize, Serialize};
+use serde_urlencoded::Deserializer;
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCustomerResponse {
@@ -15,7 +14,7 @@ pub struct GetCustomerResponse {
 
 #[derive(Debug)]
 pub struct CheckoutSessionForm {
-    pub data: Vec<(String, String)>
+    pub data: Vec<(String, String)>,
 }
 impl TryFrom<&CheckoutSession> for CheckoutSessionForm {
     type Error = Error;
@@ -39,12 +38,14 @@ impl TryFrom<&CheckoutSession> for CheckoutSessionForm {
             data.push((quantity_key, item.quantity.to_string()));
         }
         if TRIAL_PERIOD_DAYS > 0 {
-            data.push(("subscription_data[trial_period_days]".to_string(), TRIAL_PERIOD_DAYS.to_string()));
+            data.push((
+                "subscription_data[trial_period_days]".to_string(),
+                TRIAL_PERIOD_DAYS.to_string(),
+            ));
         }
         Ok(CheckoutSessionForm { data })
     }
 }
-
 
 //
 // #[derive(Debug, Serialize, Deserialize)]
