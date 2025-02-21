@@ -1,5 +1,5 @@
 use crate::domain::subscription::service::SignatureVerificationService;
-use crate::prelude::{Result, Error};
+use crate::prelude::{Error, Result};
 use hmac::digest::InvalidBufferSize;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -88,7 +88,6 @@ impl SignatureVerificationService for StripeSignatureVerificationService {
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {
